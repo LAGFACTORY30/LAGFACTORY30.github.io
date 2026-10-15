@@ -1,96 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lagfactory | Jet Flight</title>
 
-    <title>this is a new website</title>
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 100px 20px;
-            min-height: 100vh;
-            box-sizing: border-box;
-            background: linear-gradient(to bottom, red, yellow);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    min-height: 100vh;
+    padding: 70px 20px;
+    background: linear-gradient(to bottom, red, yellow);
+    background-attachment: fixed;
+}
 
-        h1 {
-            color: darkred;
-            font-size: 40px;
-        }
+h1 {
+    color: darkred;
+    font-size: 40px;
+}
 
-        p {
-            color: black;
-            font-size: 20px;
-            line-height: 1.6;
-        }
+p {
+    color: black;
+    font-size: 20px;
+    line-height: 1.6;
+}
 
-        button {
-            background-color: darkred;
-            color: white;
-            font-size: 18px;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s, background-color 0.2s;
-        }
+button {
+    background: darkred;
+    color: white;
+    font-size: 17px;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.2s, background 0.2s;
+}
 
-        button:hover {
-            transform: scale(1.08);
-            background-color: crimson;
-        }
+button:hover {
+    transform: scale(1.06);
+    background: crimson;
+}
 
-        /* Rainbow cursor trail particles */
-        .cursor-trail {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 99999;
-            transform: translate(-50%, -50%);
-            animation: trailFade 0.7s ease-out forwards;
-            box-shadow: 0 0 10px currentColor,
-                        0 0 20px currentColor;
-        }
+/* RAINBOW CURSOR TRAIL */
 
-        @keyframes trailFade {
-            0% {
-                opacity: 1;
-                scale: 1;
-            }
+.cursor-trail {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    animation: fade 0.7s ease-out forwards;
+}
 
-            100% {
-                opacity: 0;
-                scale: 0;
-            }
-        }
+@keyframes fade {
+    to {
+        opacity: 0;
+        scale: 0;
+    }
+}
 
-        /* Respect reduced-motion preferences */
-        @media (prefers-reduced-motion: reduce) {
-            .cursor-trail {
-                animation-duration: 0.2s;
-            }
-        }
-    </style>
+/* GAME SCREEN */
+
+#gameScreen {
+    display: none;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+#gameScreen h1 {
+    color: #173b25;
+    font-size: 32px;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    margin: 15px auto;
+    border: 4px solid #173b25;
+    border-radius: 12px;
+    background: skyblue;
+    touch-action: none;
+}
+
+#score {
+    font-size: 28px;
+    font-weight: bold;
+    color: #173b25;
+}
+
+#instructions {
+    font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cursor-trail {
+        animation-duration: 0.2s;
+    }
+}
+</style>
 </head>
 
 <body>
 
+<!-- HOME PAGE -->
+
+<div id="homeScreen">
     <h1>Hello my name is lagfactory</h1>
 
     <p>
         I'm a new coder and this is my first website.
-        I doubt anyone will be reading this but if you are,
+        I doubt anyone will be reading this, but if you are,
         I hope you're having a good day!!
     </p>
 
@@ -98,58 +128,467 @@
         Change Background Color 🎨
     </button>
 
-    <script>
-        // Change the background to a random gradient
-        function changeColor() {
-            const colors = [
-                "linear-gradient(to bottom, red, yellow)",
-                "linear-gradient(to bottom, blue, cyan)",
-                "linear-gradient(to bottom, purple, pink)",
-                "linear-gradient(to bottom, limegreen, lightgreen)",
-                "linear-gradient(to bottom, black, gray)",
-                "linear-gradient(to bottom, orange, gold)",
-                "linear-gradient(to bottom, hotpink, violet)"
-            ];
+    <br>
 
-            const randomColor =
-                colors[Math.floor(Math.random() * colors.length)];
+    <button onclick="openGame()">
+        ✈️ PLAY LAGFACTORY JET FLIGHT
+    </button>
+</div>
 
-            document.body.style.background = randomColor;
-        }
+<!-- JET GAME -->
 
-        // Rainbow cursor trail
-        let hue = 0;
-        let lastTrail = 0;
+<div id="gameScreen">
+    <h1>✈️ Lagfactory Jet Flight</h1>
 
-        document.addEventListener("mousemove", function(event) {
-            // Limit particle creation for smoother performance
-            const now = performance.now();
+    <div id="score">Score: 0</div>
 
-            if (now - lastTrail < 18) return;
-            lastTrail = now;
+    <canvas id="gameCanvas" width="360" height="520"></canvas>
 
-            const particle = document.createElement("div");
-            particle.className = "cursor-trail";
+    <p id="instructions">
+        Press SPACE, click, or tap to fly!
+    </p>
 
-            // Follow the cursor
-            particle.style.left = event.clientX + "px";
-            particle.style.top = event.clientY + "px";
+    <button onclick="startGame()">▶ Start / Restart</button>
+    <button onclick="goHome()">🏠 Back Home</button>
+</div>
 
-            // Cycle through rainbow colors
-            const color = `hsl(${hue}, 100%, 60%)`;
-            particle.style.backgroundColor = color;
-            particle.style.color = color;
+<script>
 
-            hue = (hue + 18) % 360;
+// BACKGROUND COLOR BUTTON
 
-            document.body.appendChild(particle);
+function changeColor() {
+    const colors = [
+        "linear-gradient(to bottom, red, yellow)",
+        "linear-gradient(to bottom, blue, cyan)",
+        "linear-gradient(to bottom, purple, pink)",
+        "linear-gradient(to bottom, limegreen, lightgreen)",
+        "linear-gradient(to bottom, black, gray)",
+        "linear-gradient(to bottom, orange, gold)",
+        "linear-gradient(to bottom, hotpink, violet)"
+    ];
 
-            // Remove particles after the animation
-            setTimeout(() => {
-                particle.remove();
-            }, 750);
+    document.body.style.background =
+        colors[Math.floor(Math.random() * colors.length)];
+}
+
+// RAINBOW CURSOR TRAIL
+
+let hue = 0;
+let lastTrail = 0;
+
+document.addEventListener("mousemove", function(e) {
+    const now = performance.now();
+
+    if (now - lastTrail < 18) return;
+    lastTrail = now;
+
+    const particle = document.createElement("div");
+    particle.className = "cursor-trail";
+
+    const color = `hsl(${hue}, 100%, 60%)`;
+
+    particle.style.left = e.clientX + "px";
+    particle.style.top = e.clientY + "px";
+    particle.style.background = color;
+    particle.style.boxShadow = `0 0 12px ${color}`;
+
+    hue = (hue + 18) % 360;
+
+    document.body.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 750);
+});
+
+// GAME SETUP
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+let jet;
+let pipes = [];
+let score = 0;
+let running = false;
+let gameOver = false;
+let animationId = null;
+let lastTime = 0;
+
+function resetGame() {
+    jet = {
+        x: 85,
+        y: 240,
+        velocity: 0,
+        radius: 10
+    };
+
+    pipes = [];
+    score = 0;
+    running = false;
+    gameOver = false;
+
+    document.getElementById("score").textContent = "Score: 0";
+    document.getElementById("instructions").textContent =
+        "Press SPACE, click, or tap to fly!";
+
+    for (let i = 0; i < 3; i++) {
+        pipes.push({
+            x: 400 + i * 190,
+            gapY: 100 + Math.random() * 220,
+            gap: 145,
+            scored: false
         });
-    </script>
+    }
+
+    draw();
+}
+
+function openGame() {
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+
+    resetGame();
+}
+
+function goHome() {
+    running = false;
+
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("homeScreen").style.display = "block";
+}
+
+function startGame() {
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+
+    resetGame();
+    running = true;
+    lastTime = 0;
+
+    animationId = requestAnimationFrame(loop);
+}
+
+// JET FLIGHT CONTROL
+
+function flap() {
+    if (document.getElementById("gameScreen").style.display === "none") {
+        return;
+    }
+
+    if (gameOver || !running) {
+        startGame();
+        return;
+    }
+
+    jet.velocity = -5.5;
+}
+
+// KEYBOARD CONTROL
+
+document.addEventListener("keydown", function(e) {
+    if (
+        e.code === "Space" &&
+        document.getElementById("gameScreen").style.display !== "none"
+    ) {
+        e.preventDefault();
+        flap();
+    }
+});
+
+// MOUSE AND TOUCH CONTROL
+
+canvas.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+    flap();
+});
+
+// DRAW THE GAME
+
+function draw() {
+    // Sky gradient
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, "#70d6ff");
+    sky.addColorStop(1, "#d6f6ff");
+
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+
+    // Clouds
+    drawCloud(65, 80);
+    drawCloud(260, 145);
+    drawCloud(180, 40);
+
+    // Obstacles
+    pipes.forEach(pipe => {
+        const topHeight = pipe.gapY - pipe.gap / 2;
+        const bottomY = pipe.gapY + pipe.gap / 2;
+
+        ctx.fillStyle = "#20b447";
+        ctx.fillRect(pipe.x, 0, 48, topHeight);
+        ctx.fillRect(pipe.x, bottomY, 48, H - bottomY);
+
+        ctx.fillStyle = "#087c2c";
+        ctx.fillRect(pipe.x - 5, topHeight - 18, 58, 18);
+        ctx.fillRect(pipe.x - 5, bottomY, 58, 18);
+
+        ctx.strokeStyle = "#075c20";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pipe.x, 0, 48, topHeight);
+        ctx.strokeRect(pipe.x, bottomY, 48, H - bottomY);
+    });
+
+    // Ground
+    ctx.fillStyle = "#9cde52";
+    ctx.fillRect(0, H - 15, W, 15);
+
+    ctx.fillStyle = "#5aab32";
+    ctx.fillRect(0, H - 15, W, 4);
+
+    // CUSTOM JET
+    ctx.save();
+    ctx.translate(jet.x, jet.y);
+
+    const angle = running
+        ? Math.max(-0.45, Math.min(0.65, jet.velocity * 0.07))
+        : 0;
+
+    ctx.rotate(angle);
+
+    // Glowing blue engine flame
+    if (running) {
+        const flameLength = 15 + Math.random() * 12;
+
+        const flame = ctx.createLinearGradient(
+            -12, 0, -12 - flameLength, 0
+        );
+
+        flame.addColorStop(0, "#ffffff");
+        flame.addColorStop(0.35, "#00e5ff");
+        flame.addColorStop(1, "#2979ff");
+
+        ctx.fillStyle = flame;
+        ctx.beginPath();
+        ctx.moveTo(-10, -4);
+        ctx.lineTo(-10 - flameLength, 0);
+        ctx.lineTo(-10, 4);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Jet body
+    ctx.fillStyle = "#cfd8dc";
+    ctx.strokeStyle = "#37474f";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(25, 0);
+    ctx.lineTo(4, -5);
+    ctx.lineTo(-12, -5);
+    ctx.lineTo(-22, -10);
+    ctx.lineTo(-17, -3);
+    ctx.lineTo(-17, 3);
+    ctx.lineTo(-22, 10);
+    ctx.lineTo(-12, 5);
+    ctx.lineTo(4, 5);
+    ctx.closePath();
+
+    ctx.fill();
+    ctx.stroke();
+
+    // Upper wing
+    ctx.fillStyle = "#90a4ae";
+    ctx.beginPath();
+    ctx.moveTo(5, -4);
+    ctx.lineTo(-7, -19);
+    ctx.lineTo(-13, -19);
+    ctx.lineTo(-9, -4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Lower wing
+    ctx.beginPath();
+    ctx.moveTo(5, 4);
+    ctx.lineTo(-7, 19);
+    ctx.lineTo(-13, 19);
+    ctx.lineTo(-9, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Cyan cockpit
+    ctx.fillStyle = "#00e5ff";
+    ctx.strokeStyle = "#006064";
+
+    ctx.beginPath();
+    ctx.ellipse(9, 0, 7, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Cockpit reflection
+    ctx.fillStyle = "white";
+    ctx.fillRect(10, -2, 3, 1);
+
+    // Red tail fins
+    ctx.fillStyle = "#ef5350";
+
+    ctx.beginPath();
+    ctx.moveTo(-14, -4);
+    ctx.lineTo(-21, -9);
+    ctx.lineTo(-19, -3);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-14, 4);
+    ctx.lineTo(-21, 9);
+    ctx.lineTo(-19, 3);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+
+    // Start and game-over overlay
+    if (!running) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+        roundRect(25, 190, 310, 110, 14);
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px Arial";
+
+        ctx.fillText(
+            gameOver ? "CRASHED!" : "JET FLIGHT",
+            W / 2,
+            228
+        );
+
+        ctx.font = "16px Arial";
+
+        ctx.fillText(
+            gameOver ? "Tap to fly again!" : "Tap to take off!",
+            W / 2,
+            260
+        );
+    }
+}
+
+function drawCloud(x, y) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.arc(x, y, 17, 0, Math.PI * 2);
+    ctx.arc(x + 19, y - 9, 22, 0, Math.PI * 2);
+    ctx.arc(x + 41, y, 17, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+}
+
+// GAME LOOP
+
+function loop(time) {
+    animationId = null;
+
+    if (!running) return;
+
+    const dt = lastTime
+        ? Math.min((time - lastTime) / 16.667, 2)
+        : 1;
+
+    lastTime = time;
+
+    // Gravity and flight
+    jet.velocity += 0.28 * dt;
+    jet.y += jet.velocity * dt;
+
+    // Move obstacles
+    pipes.forEach(pipe => {
+        pipe.x -= 2.4 * dt;
+
+        if (!pipe.scored && pipe.x + 48 < jet.x) {
+            pipe.scored = true;
+            score++;
+
+            document.getElementById("score").textContent =
+                "Score: " + score;
+        }
+    });
+
+    // Add new obstacles
+    if (pipes[0].x < -60) {
+        pipes.shift();
+
+        const lastPipe = pipes[pipes.length - 1];
+
+        pipes.push({
+            x: lastPipe.x + 190,
+            gapY: 100 + Math.random() * 220,
+            gap: 145,
+            scored: false
+        });
+    }
+
+    // Ground and ceiling collision
+    if (
+        jet.y - jet.radius < 0 ||
+        jet.y + jet.radius > H - 15
+    ) {
+        endGame();
+        return;
+    }
+
+    // Obstacle collision
+    for (const pipe of pipes) {
+        const gapTop = pipe.gapY - pipe.gap / 2;
+        const gapBottom = pipe.gapY + pipe.gap / 2;
+
+        const overlapsPipe =
+            jet.x + 25 > pipe.x &&
+            jet.x - 22 < pipe.x + 48;
+
+        if (
+            overlapsPipe &&
+            (
+                jet.y - 19 < gapTop ||
+                jet.y + 19 > gapBottom
+            )
+        ) {
+            endGame();
+            return;
+        }
+    }
+
+    draw();
+    animationId = requestAnimationFrame(loop);
+}
+
+function endGame() {
+    running = false;
+    gameOver = true;
+
+    document.getElementById("instructions").textContent =
+        "Final score: " + score + " — restart to fly again!";
+
+    draw();
+}
+
+// INITIALIZE
+
+resetGame();
+
+</script>
 
 </body>
 </html>
