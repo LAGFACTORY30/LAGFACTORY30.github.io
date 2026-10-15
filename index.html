@@ -29,17 +29,127 @@
             font-size: 20px;
             line-height: 1.6;
         }
+
+        button {
+            background-color: darkred;
+            color: white;
+            font-size: 18px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.08);
+            background-color: crimson;
+        }
+
+        /* Rainbow cursor trail particles */
+        .cursor-trail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            animation: trailFade 0.7s ease-out forwards;
+            box-shadow: 0 0 10px currentColor,
+                        0 0 20px currentColor;
+        }
+
+        @keyframes trailFade {
+            0% {
+                opacity: 1;
+                scale: 1;
+            }
+
+            100% {
+                opacity: 0;
+                scale: 0;
+            }
+        }
+
+        /* Respect reduced-motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .cursor-trail {
+                animation-duration: 0.2s;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <h1>Hello my name is lagfactory</h1>
 
     <p>
         I'm a new coder and this is my first website.
-        I doubt anyone will be reading this but if you are i hope
-        your having a good day!!
+        I doubt anyone will be reading this but if you are,
+        I hope you're having a good day!!
     </p>
+
+    <button onclick="changeColor()">
+        Change Background Color 🎨
+    </button>
+
+    <script>
+        // Change the background to a random gradient
+        function changeColor() {
+            const colors = [
+                "linear-gradient(to bottom, red, yellow)",
+                "linear-gradient(to bottom, blue, cyan)",
+                "linear-gradient(to bottom, purple, pink)",
+                "linear-gradient(to bottom, limegreen, lightgreen)",
+                "linear-gradient(to bottom, black, gray)",
+                "linear-gradient(to bottom, orange, gold)",
+                "linear-gradient(to bottom, hotpink, violet)"
+            ];
+
+            const randomColor =
+                colors[Math.floor(Math.random() * colors.length)];
+
+            document.body.style.background = randomColor;
+        }
+
+        // Rainbow cursor trail
+        let hue = 0;
+        let lastTrail = 0;
+
+        document.addEventListener("mousemove", function(event) {
+            // Limit particle creation for smoother performance
+            const now = performance.now();
+
+            if (now - lastTrail < 18) return;
+            lastTrail = now;
+
+            const particle = document.createElement("div");
+            particle.className = "cursor-trail";
+
+            // Follow the cursor
+            particle.style.left = event.clientX + "px";
+            particle.style.top = event.clientY + "px";
+
+            // Cycle through rainbow colors
+            const color = `hsl(${hue}, 100%, 60%)`;
+            particle.style.backgroundColor = color;
+            particle.style.color = color;
+
+            hue = (hue + 18) % 360;
+
+            document.body.appendChild(particle);
+
+            // Remove particles after the animation
+            setTimeout(() => {
+                particle.remove();
+            }, 750);
+        });
+    </script>
 
 </body>
 </html>
