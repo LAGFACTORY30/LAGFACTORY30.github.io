@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MY CUSTOM ARCADE</title>
+<title>Lagfactory - Multiverse Arcade</title>
 
 <style>
 * {
@@ -11,44 +11,345 @@
 }
 
 body {
+    --arcade-accent: #00e5ff;
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     min-height: 100vh;
-    padding: 70px 20px;
-    background: linear-gradient(to bottom, red, yellow);
+    padding: 28px 15px;
+    color: #f8f7ff;
+    background-color: #090716;
+    background-image:
+        linear-gradient(to bottom, transparent 0%, rgba(7, 5, 20, 0.15) 62%, #080613 62%, #080613 100%),
+        repeating-linear-gradient(90deg, transparent 0 68px, rgba(0, 229, 255, 0.055) 69px 71px),
+        radial-gradient(ellipse at 50% 30%, rgba(107, 31, 161, 0.45), transparent 55%),
+        linear-gradient(135deg, #100b24, #211039 52%, #080716);
     background-attachment: fixed;
 }
 
 h1 {
     color: darkred;
-    font-size: 40px;
+    font-size: 36px;
 }
 
 p {
-    color: black;
-    font-size: 20px;
+    font-size: 19px;
     line-height: 1.6;
 }
 
 button {
-    background: darkred;
+    background: #21164f;
     color: white;
-    font-size: 17px;
-    padding: 14px 22px;
+    border: 1px solid var(--arcade-accent, #00e5ff);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.18), inset 0 0 10px rgba(143, 68, 255, 0.15);
+    font-size: 16px;
+    padding: 13px 20px;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    margin: 10px;
+    margin: 8px;
     transition: transform 0.2s, background 0.2s;
 }
 
 button:hover {
-    transform: scale(1.06);
-    background: crimson;
+    background: #462078;
+    box-shadow: 0 0 18px var(--arcade-accent, #00e5ff);
+    transform: scale(1.05);
 }
 
-/* RAINBOW CURSOR TRAIL */
+/* Retro arcade room homepage */
+#homeScreen {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: calc(100vh - 56px);
+    padding: 28px 16px 44px;
+    border: 2px solid rgba(0, 229, 255, 0.35);
+    border-radius: 18px;
+    background:
+        linear-gradient(to bottom, rgba(9, 6, 23, 0.1) 0%, rgba(9, 6, 23, 0.1) 65%, rgba(4, 3, 13, 0.9) 65%, rgba(4, 3, 13, 0.96) 100%),
+        radial-gradient(ellipse at 50% 12%, rgba(255, 0, 200, 0.24), transparent 38%),
+        linear-gradient(135deg, rgba(21, 11, 47, 0.93), rgba(10, 8, 28, 0.94));
+    box-shadow: 0 0 28px rgba(0, 229, 255, 0.15), inset 0 0 45px rgba(109, 39, 217, 0.16);
+}
+
+/* Decorative arcade cabinets on both sides of the homepage */
+#homeScreen::before,
+#homeScreen::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 24%;
+    width: clamp(82px, 14vw, 164px);
+    height: 350px;
+    border: 5px solid var(--cabinet-glow, #00e5ff);
+    border-radius: 18px 18px 9px 9px;
+    background:
+        /* joystick and colorful buttons on the control panel */
+        radial-gradient(circle at 31% 69%, #ff3b76 0 4px, #6e123d 5px 8px, transparent 9px),
+        radial-gradient(circle at 70% 69%, #ffe45e 0 5px, #7d4e12 6px 9px, transparent 10px),
+        radial-gradient(circle at 82% 75%, #42ffb3 0 4px, #126b52 5px 8px, transparent 9px),
+        radial-gradient(circle at 30% 71%, #f6f8ff 0 2px, transparent 3px),
+        linear-gradient(105deg, transparent 0 22%, #aab5c7 22% 25%, #30364c 25% 31%, transparent 31%),
+        /* bright game screen */
+        linear-gradient(135deg, rgba(255, 56, 209, .35), transparent 50%),
+        repeating-linear-gradient(0deg, transparent 0 10px, rgba(0, 229, 255, .14) 11px 12px),
+        linear-gradient(145deg, #081b39, #12062c 70%);
+    background-size: 100% 100%;
+    box-shadow: 0 0 25px var(--cabinet-glow, #00e5ff), inset 0 0 22px rgba(255, 0, 200, 0.28);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/* Cabinet marquee, screen frame, and control deck */
+#homeScreen::before {
+    left: 2.5%;
+    transform: perspective(500px) rotateY(8deg);
+    clip-path: polygon(7% 0, 93% 0, 100% 5%, 100% 97%, 92% 100%, 8% 100%, 0 97%, 0 5%);
+    background:
+        linear-gradient(#00e5ff, #00e5ff) 12% 5% / 76% 7% no-repeat,
+        linear-gradient(#020617, #020617) 13% 15% / 74% 37% no-repeat,
+        linear-gradient(135deg, #ff38d1 0 25%, #7c4dff 25% 50%, #00e5ff 50% 75%, #ffe45e 75%) 16% 18% / 68% 31% no-repeat,
+        radial-gradient(circle at 31% 69%, #ff3b76 0 4px, #6e123d 5px 8px, transparent 9px),
+        radial-gradient(circle at 70% 69%, #ffe45e 0 5px, #7d4e12 6px 9px, transparent 10px),
+        radial-gradient(circle at 82% 75%, #42ffb3 0 4px, #126b52 5px 8px, transparent 9px),
+        linear-gradient(105deg, transparent 0 22%, #aab5c7 22% 25%, #30364c 25% 31%, transparent 31%),
+        linear-gradient(135deg, #32215f, #100b24 72%);
+}
+
+#homeScreen::after {
+    right: 2.5%;
+    --cabinet-glow: #ff38d1;
+    border-color: #ff38d1;
+    transform: perspective(500px) rotateY(-8deg);
+    clip-path: polygon(7% 0, 93% 0, 100% 5%, 100% 97%, 92% 100%, 8% 100%, 0 97%, 0 5%);
+    background:
+        linear-gradient(#ff38d1, #ff38d1) 12% 5% / 76% 7% no-repeat,
+        linear-gradient(#020617, #020617) 13% 15% / 74% 37% no-repeat,
+        linear-gradient(135deg, #00e5ff 0 25%, #39ff88 25% 50%, #ff38d1 50% 75%, #ffe45e 75%) 16% 18% / 68% 31% no-repeat,
+        radial-gradient(circle at 31% 69%, #ff3b76 0 4px, #6e123d 5px 8px, transparent 9px),
+        radial-gradient(circle at 70% 69%, #ffe45e 0 5px, #7d4e12 6px 9px, transparent 10px),
+        radial-gradient(circle at 82% 75%, #42ffb3 0 4px, #126b52 5px 8px, transparent 9px),
+        linear-gradient(105deg, transparent 0 22%, #aab5c7 22% 25%, #30364c 25% 31%, transparent 31%),
+        linear-gradient(135deg, #32215f, #100b24 72%);
+    box-shadow: 0 0 25px #ff38d1, inset 0 0 22px rgba(0, 229, 255, 0.3);
+}
+
+#homeScreen > * {
+    position: relative;
+    z-index: 1;
+}
+
+#homeScreen h1 {
+    margin: 12px auto 14px;
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-size: clamp(30px, 5.5vw, 62px);
+    font-weight: 900;
+    letter-spacing: 0.045em;
+    line-height: 1.12;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 0 #7b1fa2, 0 0 8px #ff38d1, 0 0 22px var(--arcade-accent), 0 0 42px var(--arcade-accent);
+}
+
+#homeScreen p {
+    display: inline-block;
+    margin: 8px auto 22px;
+    padding: 10px 14px;
+    color: #d7faff;
+    font-family: "Courier New", monospace;
+    font-size: clamp(13px, 2.4vw, 17px);
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    background: rgba(6, 4, 19, 0.78);
+    border: 1px solid rgba(0, 229, 255, 0.45);
+    border-radius: 8px;
+    text-shadow: 0 0 8px var(--arcade-accent);
+}
+
+#homeScreen button {
+    min-width: min(290px, 88vw);
+    background: rgba(25, 14, 58, 0.95);
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    letter-spacing: 0.025em;
+}
+
+#homeScreen button:hover {
+    background: #39205e;
+}
+
+#gameScreen {
+    display: none;
+    max-width: 440px;
+    margin: auto;
+}
+
+#gameScreen h1 {
+    color: #25e5ff;
+}
+
+#snakeScreen {
+    display: none;
+    max-width: 440px;
+    margin: auto;
+}
+
+#snakeScreen h1 {
+    color: #16803d;
+}
+
+#pacmanScreen {
+    display: none;
+    max-width: 440px;
+    margin: auto;
+}
+
+#pacmanScreen h1 {
+    color: #facc15;
+    text-shadow: 2px 2px #1e3a8a;
+}
+
+#pacmanCanvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    margin: 15px auto;
+    border: 3px solid #1d4ed8;
+    border-radius: 12px;
+    background: #05051a;
+    touch-action: none;
+}
+
+#pacmanScore {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1d4ed8;
+}
+
+.pacman-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 58px);
+    justify-content: center;
+    gap: 5px;
+    margin: 8px auto 14px;
+}
+
+.pacman-controls button {
+    margin: 0;
+    padding: 12px 0;
+    min-height: 44px;
+    background: #1d4ed8;
+}
+
+.pacman-controls button:hover {
+    background: #2563eb;
+}
+
+#snakeCanvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    margin: 15px auto;
+    border: 3px solid #14532d;
+    border-radius: 12px;
+    background: #f0fdf4;
+    touch-action: none;
+}
+
+#snakeScore {
+    font-size: 24px;
+    font-weight: bold;
+    color: #14532d;
+}
+
+.snake-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 58px);
+    justify-content: center;
+    gap: 5px;
+    margin: 8px auto 14px;
+}
+
+.snake-controls button {
+    margin: 0;
+    padding: 12px 0;
+    min-height: 44px;
+    background: #15803d;
+}
+
+.snake-controls button:hover {
+    background: #16a34a;
+}
+
+#footballScreen {
+    display: none;
+    max-width: 440px;
+    margin: auto;
+}
+
+#footballScreen h1 {
+    color: #facc15;
+    text-shadow: 2px 2px #14532d;
+}
+
+#footballCanvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    margin: 15px auto;
+    border: 3px solid #14532d;
+    border-radius: 12px;
+    touch-action: none;
+    background: #15803d;
+}
+
+#footballScore {
+    font-size: 24px;
+    font-weight: bold;
+    color: #14532d;
+}
+
+.football-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px auto 14px;
+}
+
+.football-controls button {
+    background: #166534;
+    margin: 3px;
+}
+
+.football-controls button:hover {
+    background: #15803d;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    margin: 15px auto;
+    border: 3px solid #263238;
+    border-radius: 12px;
+    touch-action: none;
+}
+
+#score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #173b25;
+}
+
+#instructions {
+    font-size: 16px;
+}
 
 .cursor-trail {
     position: fixed;
@@ -68,39 +369,19 @@ button:hover {
     }
 }
 
-/* GAME SCREEN */
-
-#gameScreen {
-    display: none;
-    max-width: 440px;
-    margin: 0 auto;
-}
-
-#gameScreen h1 {
-    color: #173b25;
-    font-size: 32px;
-}
-
-#gameCanvas {
-    display: block;
-    width: 100%;
-    max-width: 360px;
-    height: auto;
-    margin: 15px auto;
-    border: 4px solid #173b25;
-    border-radius: 12px;
-    background: skyblue;
-    touch-action: none;
-}
-
-#score {
-    font-size: 28px;
-    font-weight: bold;
-    color: #173b25;
-}
-
-#instructions {
-    font-size: 16px;
+@media (max-width: 650px) {
+    #homeScreen::before,
+    #homeScreen::after {
+        top: auto;
+        bottom: 3%;
+        width: 68px;
+        height: 145px;
+        opacity: 0.35;
+    }
+    #homeScreen {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -113,32 +394,47 @@ button:hover {
 
 <body>
 
-<!-- HOME PAGE -->
+<!-- ================= HOME PAGE ================= -->
 
 <div id="homeScreen">
-    <h1>Hello my name is lagfactory</h1>
+    <h1>Lagfactory's Arcade</h1>
 
-    <p>
-        I'm a new coder and this is my first website.
-        I doubt anyone will be reading this, but if you are,
-        I hope you're having a good day!!
-    </p>
+    <p>★ INSERT COIN &nbsp; • &nbsp; CHOOSE YOUR GAME &nbsp; • &nbsp; PLAY ★</p>
+    <br>
 
     <button onclick="changeColor()">
-        Change Background Color 🎨
+        💡 Change Arcade Lights
     </button>
 
     <br>
 
     <button onclick="openGame()">
-        ✈️ PLAY LAGFACTORY JET FLIGHT
+        🚀 PLAY LAGFACTORY MULTIVERSE
+    </button>
+
+    <br>
+
+    <button onclick="openSnake()">
+        🐍 PLAY SNAKE
+    </button>
+
+    <br>
+
+    <button onclick="openPacman()">
+        🟡 PLAY PAC-MAN
+    </button>
+
+    <br>
+
+    <button onclick="openFootball()">
+        🏈 PLAY RETRO FOOTBALL
     </button>
 </div>
 
-<!-- JET GAME -->
+<!-- ================= GAME SCREEN ================= -->
 
 <div id="gameScreen">
-    <h1>✈️ Lagfactory Jet Flight</h1>
+    <h1 id="worldTitle">✈️ Jet Flight</h1>
 
     <div id="score">Score: 0</div>
 
@@ -148,30 +444,80 @@ button:hover {
         Press SPACE, click, or tap to fly!
     </p>
 
-    <button onclick="startGame()">▶ Start / Restart</button>
-    <button onclick="goHome()">🏠 Back Home</button>
+    <button onclick="startGame()">▶ Restart Game</button>
+    <button onclick="goHome()">🏠 Back to Homepage</button>
+</div>
+
+<!-- ================= SNAKE GAME SCREEN ================= -->
+<div id="snakeScreen">
+    <h1>🐍 Lagfactory Snake</h1>
+    <div id="snakeScore">Score: 0</div>
+    <canvas id="snakeCanvas" width="360" height="520"></canvas>
+    <p id="snakeInstructions">Use the arrow keys or WASD to move. Eat the red food!</p>
+
+    <div class="snake-controls" aria-label="Snake direction controls">
+        <span></span>
+        <button onclick="setSnakeDirection('up')" aria-label="Move up">⬆️</button>
+        <span></span>
+        <button onclick="setSnakeDirection('left')" aria-label="Move left">⬅️</button>
+        <button onclick="setSnakeDirection('down')" aria-label="Move down">⬇️</button>
+        <button onclick="setSnakeDirection('right')" aria-label="Move right">➡️</button>
+    </div>
+
+    <button onclick="startSnake()">▶ Restart Snake</button>
+    <button onclick="goHome()">🏠 Back to Homepage</button>
+</div>
+
+<!-- ================= PAC-MAN GAME SCREEN ================= -->
+<div id="pacmanScreen">
+    <h1>🟡 Lagfactory Pac-Man</h1>
+    <div id="pacmanScore">Score: 0</div>
+    <canvas id="pacmanCanvas" width="360" height="520"></canvas>
+    <p id="pacmanInstructions">Use arrow keys or WASD to collect all the dots and avoid the ghosts!</p>
+
+    <div class="pacman-controls" aria-label="Pac-Man direction controls">
+        <span></span>
+        <button onclick="setPacmanDirection('up')" aria-label="Move up">⬆️</button>
+        <span></span>
+        <button onclick="setPacmanDirection('left')" aria-label="Move left">⬅️</button>
+        <button onclick="setPacmanDirection('down')" aria-label="Move down">⬇️</button>
+        <button onclick="setPacmanDirection('right')" aria-label="Move right">➡️</button>
+    </div>
+
+    <button onclick="startPacman()">▶ Restart Pac-Man</button>
+    <button onclick="goHome()">🏠 Back to Homepage</button>
+</div>
+
+<!-- ================ RETRO-STYLE FOOTBALL GAME ================ -->
+<div id="footballScreen">
+    <h1>🏈 Lagfactory Retro Football</h1>
+    <div id="footballScore">Yards: 0 | TDs: 0</div>
+    <canvas id="footballCanvas" width="360" height="520" aria-label="Arcade football field"></canvas>
+    <p id="footballInstructions">Move with ← → or A/D. Press SPACE or tap THROW PASS to pass to your receiver. Complete 5 passes to score a touchdown!</p>
+    <div class="football-controls">
+        <button onclick="moveFootballQB(-1)" aria-label="Move quarterback left">⬅️ Move left</button>
+        <button onclick="throwFootballPass()">🏈 THROW PASS</button>
+        <button onclick="moveFootballQB(1)" aria-label="Move quarterback right">Move right ➡️</button>
+    </div>
+    <button onclick="startFootball()">▶ Restart Football</button>
+    <button onclick="goHome()">🏠 Back to Homepage</button>
 </div>
 
 <script>
 
-// BACKGROUND COLOR BUTTON
+// ============================================
+// HOMEPAGE BACKGROUND BUTTON
+// ============================================
 
 function changeColor() {
-    const colors = [
-        "linear-gradient(to bottom, red, yellow)",
-        "linear-gradient(to bottom, blue, cyan)",
-        "linear-gradient(to bottom, purple, pink)",
-        "linear-gradient(to bottom, limegreen, lightgreen)",
-        "linear-gradient(to bottom, black, gray)",
-        "linear-gradient(to bottom, orange, gold)",
-        "linear-gradient(to bottom, hotpink, violet)"
-    ];
-
-    document.body.style.background =
-        colors[Math.floor(Math.random() * colors.length)];
+    const colors = ["#00e5ff", "#ff38d1", "#a3ff12", "#ffb000", "#8b5cf6", "#ff4d6d", "#ffffff"];
+    const accent = colors[Math.floor(Math.random() * colors.length)];
+    document.body.style.setProperty("--arcade-accent", accent);
 }
 
+// ============================================
 // RAINBOW CURSOR TRAIL
+// ============================================
 
 let hue = 0;
 let lastTrail = 0;
@@ -199,7 +545,9 @@ document.addEventListener("mousemove", function(e) {
     setTimeout(() => particle.remove(), 750);
 });
 
-// GAME SETUP
+// ============================================
+// GAME VARIABLES
+// ============================================
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -207,52 +555,62 @@ const ctx = canvas.getContext("2d");
 const W = canvas.width;
 const H = canvas.height;
 
-let jet;
-let pipes = [];
+let player;
+let obstacles = [];
+let stars = [];
 let score = 0;
+
+let world = "jet";
 let running = false;
 let gameOver = false;
 let animationId = null;
 let lastTime = 0;
+let portal = null;
 
-function resetGame() {
-    jet = {
-        x: 85,
-        y: 240,
-        velocity: 0,
-        radius: 10
+function makeObstacle(x) {
+    return {
+        x: x,
+        gapY: 100 + Math.random() * 220,
+        gap: world === "space" ? 165 : 145,
+        scored: false
     };
-
-    pipes = [];
-    score = 0;
-    running = false;
-    gameOver = false;
-
-    document.getElementById("score").textContent = "Score: 0";
-    document.getElementById("instructions").textContent =
-        "Press SPACE, click, or tap to fly!";
-
-    for (let i = 0; i < 3; i++) {
-        pipes.push({
-            x: 400 + i * 190,
-            gapY: 100 + Math.random() * 220,
-            gap: 145,
-            scored: false
-        });
-    }
-
-    draw();
 }
 
+function makeStars() {
+    stars = [];
+
+    for (let i = 0; i < 90; i++) {
+        stars.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: 1 + Math.random() * 2,
+            speed: 0.5 + Math.random() * 2
+        });
+    }
+}
+
+// ============================================
+// SCREEN NAVIGATION
+// ============================================
+
 function openGame() {
+    stopSnakeTimer();
+    stopPacmanTimer();
+    stopFootballTimer();
     document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("snakeScreen").style.display = "none";
+    document.getElementById("pacmanScreen").style.display = "none";
+    document.getElementById("footballScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "block";
 
-    resetGame();
+    startGame();
 }
 
 function goHome() {
     running = false;
+    stopSnakeTimer();
+    stopPacmanTimer();
+    stopFootballTimer();
 
     if (animationId !== null) {
         cancelAnimationFrame(animationId);
@@ -260,7 +618,15 @@ function goHome() {
     }
 
     document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("snakeScreen").style.display = "none";
+    document.getElementById("pacmanScreen").style.display = "none";
+    document.getElementById("footballScreen").style.display = "none";
     document.getElementById("homeScreen").style.display = "block";
+
+    document.body.style.removeProperty("--arcade-accent");
+    document.body.style.background = "";
+
+    resetGame();
 }
 
 function startGame() {
@@ -270,16 +636,66 @@ function startGame() {
     }
 
     resetGame();
+
     running = true;
     lastTime = 0;
 
     animationId = requestAnimationFrame(loop);
 }
 
-// JET FLIGHT CONTROL
+// ============================================
+// RESET GAME
+// ============================================
+
+function resetGame() {
+    player = {
+        x: 85,
+        y: 240,
+        velocity: 0,
+        radius: 10
+    };
+
+    obstacles = [];
+    score = 0;
+    world = "jet";
+    portal = null;
+    running = false;
+    gameOver = false;
+
+    for (let i = 0; i < 3; i++) {
+        obstacles.push(makeObstacle(400 + i * 190));
+    }
+ makeStars();
+    updateLabels();
+
+    document.getElementById("score").textContent = "Score: 0";
+
+    document.getElementById("instructions").textContent =
+        "Press SPACE, click, or tap to fly! Reach 35 to unlock the portal.";
+
+    draw();
+}
+
+function updateLabels() {
+    const title = document.getElementById("worldTitle");
+
+    if (world === "jet") {
+        title.textContent = "✈️ Jet Flight";
+    } else if (world === "portal") {
+        title.textContent = "🌀 PORTAL UNLOCKED!";
+    } else {
+        title.textContent = "🛸 Alien Space";
+    }
+}
+
+// ============================================
+// FLIGHT CONTROLS
+// ============================================
 
 function flap() {
-    if (document.getElementById("gameScreen").style.display === "none") {
+    if (
+        document.getElementById("gameScreen").style.display === "none"
+    ) {
         return;
     }
 
@@ -288,10 +704,8 @@ function flap() {
         return;
     }
 
-    jet.velocity = -5.5;
+    player.velocity = -5.5;
 }
-
-// KEYBOARD CONTROL
 
 document.addEventListener("keydown", function(e) {
     if (
@@ -303,72 +717,202 @@ document.addEventListener("keydown", function(e) {
     }
 });
 
-// MOUSE AND TOUCH CONTROL
-
 canvas.addEventListener("pointerdown", function(e) {
     e.preventDefault();
     flap();
 });
 
-// DRAW THE GAME
+// ============================================
+// PORTAL AT SCORE 35
+// ============================================
 
-function draw() {
-    // Sky gradient
-    const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, "#70d6ff");
-    sky.addColorStop(1, "#d6f6ff");
+function unlockPortal() {
+    world = "portal";
+    obstacles = [];
 
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, W, H);
+    portal = {
+        x: W + 70,
+        y: H / 2,
+        rotation: 0
+    };
 
-    // Clouds
-    drawCloud(65, 80);
-    drawCloud(260, 145);
-    drawCloud(180, 40);
+    updateLabels();
 
-    // Obstacles
-    pipes.forEach(pipe => {
-        const topHeight = pipe.gapY - pipe.gap / 2;
-        const bottomY = pipe.gapY + pipe.gap / 2;
+    document.getElementById("instructions").textContent =
+        "PORTAL UNLOCKED! Fly into the glowing portal!";
+}
 
-        ctx.fillStyle = "#20b447";
-        ctx.fillRect(pipe.x, 0, 48, topHeight);
-        ctx.fillRect(pipe.x, bottomY, 48, H - bottomY);
+function enterSpace() {
+    world = "space";
+    portal = null;
 
-        ctx.fillStyle = "#087c2c";
-        ctx.fillRect(pipe.x - 5, topHeight - 18, 58, 18);
-        ctx.fillRect(pipe.x - 5, bottomY, 58, 18);
+    obstacles = [
+        makeObstacle(400),
+        makeObstacle(590),
+        makeObstacle(780)
+    ];
 
-        ctx.strokeStyle = "#075c20";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(pipe.x, 0, 48, topHeight);
-        ctx.strokeRect(pipe.x, bottomY, 48, H - bottomY);
+    makeStars();
+    updateLabels();
+
+    document.getElementById("instructions").textContent =
+        "WELCOME TO SPACE! Dodge the asteroids!";
+
+    document.getElementById("score").textContent =
+        "Score: " + score + " | SPACE WORLD";
+}
+
+// ============================================
+// BACKGROUNDS
+// ============================================
+
+function drawBackground() {
+    if (world === "jet" || world === "portal") {
+        const sky = ctx.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, "#70d6ff");
+        sky.addColorStop(1, "#d6f6ff");
+
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        drawCloud(45, 80);
+        drawCloud(240, 140);
+        drawCloud(160, 45);
+
+    } else {
+        const space = ctx.createLinearGradient(0, 0, W, H);
+        space.addColorStop(0, "#07021f");
+        space.addColorStop(0.5, "#17105c");
+        space.addColorStop(1, "#360747");
+
+        ctx.fillStyle = space;
+        ctx.fillRect(0, 0, W, H);
+
+        // Stars
+        ctx.fillStyle = "white";
+
+        stars.forEach(star => {
+            ctx.globalAlpha = 0.6 + Math.random() * 0.4;
+
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (running) {
+                star.x -= star.speed;
+
+                if (star.x < 0) {
+                    star.x = W;
+                    star.y = Math.random() * H;
+                }
+            }
+        });
+
+        ctx.globalAlpha = 1;
+
+        // Distant planet
+        ctx.fillStyle = "#713bd1";
+        ctx.beginPath();
+        ctx.arc(285, 85, 32, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#bba2ff";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.ellipse(285, 85, 48, 12, -0.3, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+}
+
+function drawCloud(x, y) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.arc(x, y, 17, 0, Math.PI * 2);
+    ctx.arc(x + 19, y - 9, 22, 0, Math.PI * 2);
+    ctx.arc(x + 41, y, 17, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// ============================================
+// OBSTACLES
+// ============================================
+
+function drawObstacles() {
+    obstacles.forEach(obstacle => {
+        const gapTop = obstacle.gapY - obstacle.gap / 2;
+        const gapBottom = obstacle.gapY + obstacle.gap / 2;
+
+        if (world === "space") {
+            drawAsteroidColumn(obstacle.x, -10, gapTop + 10);
+            drawAsteroidColumn(
+                obstacle.x,
+                gapBottom - 10,
+                H - gapBottom + 10
+            );
+
+        } else {
+            ctx.fillStyle = "#20b447";
+            ctx.fillRect(obstacle.x, 0, 48, gapTop);
+            ctx.fillRect(obstacle.x, gapBottom, 48, H - gapBottom);
+  ctx.fillStyle = "#087c2c";
+            ctx.fillRect(obstacle.x - 5, gapTop - 18, 58, 18);
+            ctx.fillRect(obstacle.x - 5, gapBottom, 58, 18);
+
+            ctx.strokeStyle = "#075c20";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obstacle.x, 0, 48, gapTop);
+            ctx.strokeRect(
+                obstacle.x, gapBottom, 48, H - gapBottom
+            );
+        }
     });
+}
 
-    // Ground
-    ctx.fillStyle = "#9cde52";
-    ctx.fillRect(0, H - 15, W, 15);
+function drawAsteroidColumn(x, y, height) {
+    if (height <= 0) return;
 
-    ctx.fillStyle = "#5aab32";
-    ctx.fillRect(0, H - 15, W, 4);
+    for (let py = y; py < y + height; py += 27) {
+        const seed = Math.abs(
+            Math.floor(x / 10) + Math.floor(py / 10)
+        );
 
-    // CUSTOM JET
+        const offset = (seed % 7) - 3;
+        const radius = 13 + (seed % 5);
+
+        ctx.fillStyle = seed % 2 ? "#817b9c" : "#aaa1bd";
+        ctx.strokeStyle = "#50476b";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.arc(x + 24 + offset, py + 10, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#625873";
+        ctx.beginPath();
+        ctx.arc(x + 20 + offset, py + 7, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// ============================================
+// JET CHARACTER
+// ============================================
+
+function drawJet() {
     ctx.save();
-    ctx.translate(jet.x, jet.y);
+    ctx.translate(player.x, player.y);
 
     const angle = running
-        ? Math.max(-0.45, Math.min(0.65, jet.velocity * 0.07))
+        ? Math.max(-0.45, Math.min(0.65, player.velocity * 0.07))
         : 0;
 
     ctx.rotate(angle);
 
-    // Glowing blue engine flame
+    // Blue engine flame
     if (running) {
-        const flameLength = 15 + Math.random() * 12;
-
-        const flame = ctx.createLinearGradient(
-            -12, 0, -12 - flameLength, 0
-        );
+        const length = 15 + Math.random() * 12;
+        const flame = ctx.createLinearGradient(-12, 0, -12 - length, 0);
 
         flame.addColorStop(0, "#ffffff");
         flame.addColorStop(0.35, "#00e5ff");
@@ -377,7 +921,7 @@ function draw() {
         ctx.fillStyle = flame;
         ctx.beginPath();
         ctx.moveTo(-10, -4);
-        ctx.lineTo(-10 - flameLength, 0);
+        ctx.lineTo(-10 - length, 0);
         ctx.lineTo(-10, 4);
         ctx.closePath();
         ctx.fill();
@@ -399,12 +943,12 @@ function draw() {
     ctx.lineTo(-12, 5);
     ctx.lineTo(4, 5);
     ctx.closePath();
-
     ctx.fill();
     ctx.stroke();
 
-    // Upper wing
+    // Wings
     ctx.fillStyle = "#90a4ae";
+
     ctx.beginPath();
     ctx.moveTo(5, -4);
     ctx.lineTo(-7, -19);
@@ -414,7 +958,6 @@ function draw() {
     ctx.fill();
     ctx.stroke();
 
-    // Lower wing
     ctx.beginPath();
     ctx.moveTo(5, 4);
     ctx.lineTo(-7, 19);
@@ -424,7 +967,7 @@ function draw() {
     ctx.fill();
     ctx.stroke();
 
-    // Cyan cockpit
+    // Cockpit
     ctx.fillStyle = "#00e5ff";
     ctx.strokeStyle = "#006064";
 
@@ -433,17 +976,12 @@ function draw() {
     ctx.fill();
     ctx.stroke();
 
-    // Cockpit reflection
-    ctx.fillStyle = "white";
-    ctx.fillRect(10, -2, 3, 1);
-
     // Red tail fins
     ctx.fillStyle = "#ef5350";
 
     ctx.beginPath();
     ctx.moveTo(-14, -4);
-    ctx.lineTo(-21, -9);
-    ctx.lineTo(-19, -3);
+    ctx.lineTo(-21, -9);  ctx.lineTo(-19, -3);
     ctx.closePath();
     ctx.fill();
 
@@ -455,40 +993,170 @@ function draw() {
     ctx.fill();
 
     ctx.restore();
+}
 
-    // Start and game-over overlay
-    if (!running) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+// ============================================
+// UFO CHARACTER
+// ============================================
+
+function drawUFO() {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+
+    // Tractor beam
+    ctx.fillStyle = "rgba(0,255,180,0.18)";
+    ctx.beginPath();
+    ctx.moveTo(-12, 8);
+    ctx.lineTo(12, 8);
+    ctx.lineTo(20, 25);
+    ctx.lineTo(-20, 25);
+    ctx.closePath();
+    ctx.fill();
+
+    // Saucer
+    ctx.fillStyle = "#bfc9d8";
+    ctx.strokeStyle = "#f5f5ff";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 5, 24, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Neon rim
+    ctx.strokeStyle = "#00ffd5";
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 6, 21, 7, 0, 0, Math.PI);
+    ctx.stroke();
+
+    // Glass dome
+    const dome = ctx.createLinearGradient(0, -20, 0, 2);
+    dome.addColorStop(0, "#d6ffff");
+    dome.addColorStop(1, "#00b8ff");
+
+    ctx.fillStyle = dome;
+    ctx.beginPath();
+    ctx.ellipse(0, -4, 13, 12, 0, Math.PI, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Dome reflection
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(-5, -9, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Alien eyes
+    ctx.fillStyle = "#142038";
+    ctx.beginPath();
+    ctx.ellipse(-4, -2, 2, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(4, -2, 2, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // UFO lights
+    for (let i = -1; i <= 1; i++) {
+        ctx.fillStyle = i === 0 ? "#fff176" : "#ff5df4";
+
+        ctx.beginPath();
+        ctx.arc(i * 12, 7, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
+
+// ============================================
+// PORTAL EFFECT
+// ============================================
+
+function drawPortal() {
+    if (!portal) return;
+
+    ctx.save();
+    ctx.translate(portal.x, portal.y);
+
+    if (running) {
+        portal.rotation += 0.035;
+    }
+
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = "#b000ff";
+
+    ctx.fillStyle = "rgba(130,30,255,0.25)";
+    ctx.beginPath();
+    ctx.arc(0, 0, 55, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.rotate(portal.rotation);
+
+    ctx.strokeStyle = "#d45bff";
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 43, 52, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#00e5ff";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 30, 46, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const inside = ctx.createRadialGradient(0, 0, 2, 0, 0, 38);
+    inside.addColorStop(0, "#10053d");
+    inside.addColorStop(0.6, "#5422bd");
+    inside.addColorStop(1, "#f17cff");
+
+    ctx.fillStyle = inside;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 26, 40, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 15px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("ENTER PORTAL!", portal.x, portal.y - 67);
+}
+
+// ============================================
+// DRAW GAME
+// ============================================
+
+function draw() {
+    drawBackground();
+    drawObstacles();
+    drawPortal();
+
+    if (world === "jet") {
+        ctx.fillStyle = "#9cde52";
+        ctx.fillRect(0, H - 15, W, 15);
+
+        ctx.fillStyle = "#5aab32";
+        ctx.fillRect(0, H - 15, W, 4);
+    }
+
+    if (world === "space") {
+        drawUFO();
+    } else {
+        drawJet();
+    }
+
+    if (!running && gameOver) {
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
         roundRect(25, 190, 310, 110, 14);
         ctx.fill();
 
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
-        ctx.font = "bold 24px Arial";
-
-        ctx.fillText(
-            gameOver ? "CRASHED!" : "JET FLIGHT",
-            W / 2,
-            228
-        );
+        ctx.font = "bold 25px Arial";
+        ctx.fillText("GAME OVER!", W / 2, 230);
 
         ctx.font = "16px Arial";
-
-        ctx.fillText(
-            gameOver ? "Tap to fly again!" : "Tap to take off!",
-            W / 2,
-            260
-        );
+        ctx.fillText("Tap to try again!", W / 2, 263);
     }
-}
-
-function drawCloud(x, y) {
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.beginPath();
-    ctx.arc(x, y, 17, 0, Math.PI * 2);
-    ctx.arc(x + 19, y - 9, 22, 0, Math.PI * 2);
-    ctx.arc(x + 41, y, 17, 0, Math.PI * 2);
-    ctx.fill();
 }
 
 function roundRect(x, y, w, h, r) {
@@ -496,7 +1164,9 @@ function roundRect(x, y, w, h, r) {
     ctx.roundRect(x, y, w, h, r);
 }
 
-// GAME LOOP
+// ============================================
+// MAIN GAME LOOP
+// ============================================
 
 function loop(time) {
     animationId = null;
@@ -509,60 +1179,90 @@ function loop(time) {
 
     lastTime = time;
 
-    // Gravity and flight
-    jet.velocity += 0.28 * dt;
-    jet.y += jet.velocity * dt;
+    // Gravity
+    player.velocity += 0.28 * dt;
+    player.y += player.velocity * dt;
 
-    // Move obstacles
-    pipes.forEach(pipe => {
-        pipe.x -= 2.4 * dt;
+    // Portal stage
+    if (world === "portal" && portal) {
+        portal.x -= 2.4 * dt;
 
-        if (!pipe.scored && pipe.x + 48 < jet.x) {
-            pipe.scored = true;
+        // Fly close to the portal to enter the new world
+        const nearPortal =
+            Math.abs(player.x - portal.x) < 36 &&
+            Math.abs(player.y - portal.y) < 60;
+
+        if (nearPortal) {
+            enterSpace();
+        }
+
+        // Bring the portal back if the player misses it
+        if (portal && portal.x < -60) {
+            portal.x = W + 40;
+        }
+
+        draw();
+        animationId = requestAnimationFrame(loop);
+        return;
+    } // Move pipes or asteroids
+    obstacles.forEach(obstacle => {
+        obstacle.x -= (world === "space" ? 2.8 : 2.4) * dt;
+
+        if (!obstacle.scored && obstacle.x + 48 < player.x) {
+            obstacle.scored = true;
             score++;
 
             document.getElementById("score").textContent =
-                "Score: " + score;
+                "Score: " + score +
+                (world === "space" ? " | SPACE WORLD" : "");
+
+            if (score >= 35 && world === "jet") {
+                unlockPortal();
+            }
         }
     });
 
-    // Add new obstacles
-    if (pipes[0].x < -60) {
-        pipes.shift();
-
-        const lastPipe = pipes[pipes.length - 1];
-
-        pipes.push({
-            x: lastPipe.x + 190,
-            gapY: 100 + Math.random() * 220,
-            gap: 145,
-            scored: false
-        });
+    if (world === "portal") {
+        draw();
+        animationId = requestAnimationFrame(loop);
+        return;
     }
 
-    // Ground and ceiling collision
+    // Recycle obstacles
+    if (obstacles.length && obstacles[0].x < -65) {
+        obstacles.shift();
+
+        const last = obstacles[obstacles.length - 1];
+
+        obstacles.push(
+            makeObstacle(last ? last.x + 190 : W + 100)
+        );
+    }
+
+    // Ceiling and ground collisions
     if (
-        jet.y - jet.radius < 0 ||
-        jet.y + jet.radius > H - 15
+        player.y - 10 < 0 ||
+        (world === "jet" && player.y + 10 > H - 15) ||
+        (world === "space" && player.y + 10 > H)
     ) {
         endGame();
         return;
     }
 
-    // Obstacle collision
-    for (const pipe of pipes) {
-        const gapTop = pipe.gapY - pipe.gap / 2;
-        const gapBottom = pipe.gapY + pipe.gap / 2;
+    // Pipe and asteroid collisions
+    for (const obstacle of obstacles) {
+        const gapTop = obstacle.gapY - obstacle.gap / 2;
+        const gapBottom = obstacle.gapY + obstacle.gap / 2;
 
-        const overlapsPipe =
-            jet.x + 25 > pipe.x &&
-            jet.x - 22 < pipe.x + 48;
+        const overlaps =
+            player.x + 20 > obstacle.x &&
+            player.x - 20 < obstacle.x + 48;
 
         if (
-            overlapsPipe &&
+            overlaps &&
             (
-                jet.y - 19 < gapTop ||
-                jet.y + 19 > gapBottom
+                player.y - 19 < gapTop ||
+                player.y + 19 > gapBottom
             )
         ) {
             endGame();
@@ -579,16 +1279,746 @@ function endGame() {
     gameOver = true;
 
     document.getElementById("instructions").textContent =
-        "Final score: " + score + " — restart to fly again!";
+        "Final score: " + score + " — restart to play again!";
 
     draw();
 }
 
+// ============================================
+// LAGFACTORY SNAKE GAME
+// ============================================
+
+const snakeCanvas = document.getElementById("snakeCanvas");
+const snakeCtx = snakeCanvas.getContext("2d");
+const SNAKE_CELL = 20;
+const SNAKE_COLS = snakeCanvas.width / SNAKE_CELL;
+const SNAKE_ROWS = snakeCanvas.height / SNAKE_CELL;
+let snake = [];
+let snakeFood = { x: 10, y: 10 };
+let snakeDirection = "right";
+let nextSnakeDirection = "right";
+let snakePoints = 0;
+let snakeTimer = null;
+let snakeOver = false;
+
+function openSnake() {
+    running = false;
+    stopPacmanTimer();
+    stopFootballTimer();
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("pacmanScreen").style.display = "none";
+    document.getElementById("footballScreen").style.display = "none";
+    document.getElementById("snakeScreen").style.display = "block";
+    startSnake();
+}
+
+function stopSnakeTimer() {
+    if (snakeTimer !== null) {
+        clearInterval(snakeTimer);
+        snakeTimer = null;
+    }
+}
+
+function startSnake() {
+    stopSnakeTimer();
+    snake = [
+        { x: 8, y: 13 },
+        { x: 7, y: 13 },
+        { x: 6, y: 13 }
+    ];
+    snakeDirection = "right";
+    nextSnakeDirection = "right";
+    snakePoints = 0;
+    snakeOver = false;
+    placeSnakeFood();
+    document.getElementById("snakeScore").textContent = "Score: 0";
+    document.getElementById("snakeInstructions").textContent =
+        "Use the arrow keys or WASD to move. Eat the red food!";
+    drawSnakeGame();
+    snakeTimer = setInterval(snakeTick, 125);
+}
+
+function placeSnakeFood() {
+    let candidate;
+    do {
+        candidate = {
+            x: Math.floor(Math.random() * SNAKE_COLS),
+            y: Math.floor(Math.random() * SNAKE_ROWS)
+        };
+    } while (snake.some(part => part.x === candidate.x && part.y === candidate.y));
+    snakeFood = candidate;
+}
+
+function setSnakeDirection(direction) {
+    if (snakeOver) return;
+    const opposite = {
+        up: "down",
+        down: "up",
+        left: "right",
+        right: "left"
+    };
+    if (direction !== opposite[snakeDirection]) {
+        nextSnakeDirection = direction;
+    }
+}
+
+document.addEventListener("keydown", function(e) {
+    if (document.getElementById("snakeScreen").style.display === "none") return;
+
+    const key = e.key.toLowerCase();
+    const directions = {
+        arrowup: "up", w: "up",
+        arrowdown: "down", s: "down",
+        arrowleft: "left", a: "left",
+        arrowright: "right", d: "right"
+    };
+
+    if (directions[key]) {
+        e.preventDefault();
+        setSnakeDirection(directions[key]);
+    }
+});
+
+function snakeTick() {
+    if (snakeOver) return;
+    snakeDirection = nextSnakeDirection;
+
+    const head = { ...snake[0] };
+    if (snakeDirection === "up") head.y--;
+    if (snakeDirection === "down") head.y++;
+    if (snakeDirection === "left") head.x--;
+    if (snakeDirection === "right") head.x++;
+
+    const eating = head.x === snakeFood.x && head.y === snakeFood.y;
+    const bodyToCheck = eating ? snake : snake.slice(0, -1);
+    const hitWall = head.x < 0 || head.x >= SNAKE_COLS || head.y < 0 || head.y >= SNAKE_ROWS;
+    const hitSelf = bodyToCheck.some(part => part.x === head.x && part.y === head.y);
+
+    if (hitWall || hitSelf) {
+        snakeOver = true;
+        stopSnakeTimer();
+        document.getElementById("snakeInstructions").textContent =
+            "Game over! Your score was " + snakePoints + ". Press Restart Snake to try again.";
+        drawSnakeGame();
+        return;
+    }
+
+    snake.unshift(head);
+    if (eating) {
+        snakePoints++;
+        document.getElementById("snakeScore").textContent = "Score: " + snakePoints;
+        if (snake.length === SNAKE_COLS * SNAKE_ROWS) {
+            snakeOver = true;
+            stopSnakeTimer();
+            document.getElementById("snakeInstructions").textContent = "You filled the whole board! You win!";
+        } else {
+            placeSnakeFood();
+        }
+    } else {
+        snake.pop();
+    }
+    drawSnakeGame();
+}
+
+function drawSnakeGame() {
+    snakeCtx.fillStyle = "#f0fdf4";
+    snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+    // Light grid lines make the board easy to read.
+    snakeCtx.strokeStyle = "#dcfce7";
+    snakeCtx.lineWidth = 1;
+    for (let x = 0; x <= snakeCanvas.width; x += SNAKE_CELL) {
+        snakeCtx.beginPath();
+        snakeCtx.moveTo(x, 0);
+        snakeCtx.lineTo(x, snakeCanvas.height);
+        snakeCtx.stroke();
+    }
+    for (let y = 0; y <= snakeCanvas.height; y += SNAKE_CELL) {
+        snakeCtx.beginPath();
+        snakeCtx.moveTo(0, y);
+        snakeCtx.lineTo(snakeCanvas.width, y);
+        snakeCtx.stroke();
+    }
+
+    // Food
+    snakeCtx.fillStyle = "#ef4444";
+    snakeCtx.beginPath();
+    snakeCtx.arc(
+        snakeFood.x * SNAKE_CELL + SNAKE_CELL / 2,
+        snakeFood.y * SNAKE_CELL + SNAKE_CELL / 2,
+        SNAKE_CELL * 0.38, 0, Math.PI * 2
+    );
+    snakeCtx.fill();
+
+    // Snake body and head
+    snake.forEach((part, index) => {
+        snakeCtx.fillStyle = index === 0 ? "#166534" : "#22c55e";
+        snakeCtx.fillRect(
+            part.x * SNAKE_CELL + 1,
+            part.y * SNAKE_CELL + 1,
+            SNAKE_CELL - 2,
+            SNAKE_CELL - 2
+        );
+    });
+
+    if (snakeOver) {
+        snakeCtx.fillStyle = "rgba(0, 0, 0, 0.68)";
+        snakeCtx.fillRect(25, 205, snakeCanvas.width - 50, 100);
+        snakeCtx.fillStyle = "white";
+        snakeCtx.textAlign = "center";
+        snakeCtx.font = "bold 25px Arial";
+        snakeCtx.fillText(
+            snake.length === SNAKE_COLS * SNAKE_ROWS ? "YOU WIN!" : "GAME OVER!",
+            snakeCanvas.width / 2, 247
+        );
+        snakeCtx.font = "16px Arial";
+        snakeCtx.fillText("Score: " + snakePoints, snakeCanvas.width / 2, 277);
+    }
+}
+
+
+// ============================================
+// LAGFACTORY PAC-MAN GAME
+// ============================================
+
+const pacmanCanvas = document.getElementById("pacmanCanvas");
+const pacmanCtx = pacmanCanvas.getContext("2d");
+const PM_CELL = 20;
+const PM_COLS = pacmanCanvas.width / PM_CELL;
+const PM_ROWS = pacmanCanvas.height / PM_CELL;
+let pmMaze = [];
+let pmPlayer = { x: 1, y: 1 };
+let pmDirection = "right";
+let pmWantedDirection = "right";
+let pmGhosts = [];
+let pmPoints = 0;
+let pmDotsLeft = 0;
+let pmTimer = null;
+let pmOver = false;
+let pmWon = false;
+let pmMouth = 0.22;
+
+function openPacman() {
+    running = false;
+    stopSnakeTimer();
+    stopFootballTimer();
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("snakeScreen").style.display = "none";
+    document.getElementById("footballScreen").style.display = "none";
+    document.getElementById("pacmanScreen").style.display = "block";
+    startPacman();
+}
+
+function stopPacmanTimer() {
+    if (pmTimer !== null) {
+        clearInterval(pmTimer);
+        pmTimer = null;
+    }
+}
+
+function makePacmanMaze() {
+    pmMaze = Array.from({ length: PM_ROWS }, (_, y) =>
+        Array.from({ length: PM_COLS }, (_, x) =>
+            (x === 0 || y === 0 || x === PM_COLS - 1 || y === PM_ROWS - 1) ? 1 : 0
+        )
+    );
+
+    // Horizontal maze walls, each with several openings.
+    [4, 8, 12, 16, 20].forEach((y, rowIndex) => {
+        for (let x = 1; x < PM_COLS - 1; x++) {
+            if (![2, 8, 14].includes(x)) pmMaze[y][x] = 1;
+        }
+    });
+
+    // Vertical walls add the classic maze feel; gaps keep routes connected.
+    [5, 11].forEach(x => {
+        for (let y = 1; y < PM_ROWS - 1; y++) {
+            if (![2, 6, 10, 14, 18, 22].includes(y)) pmMaze[y][x] = 1;
+        }
+    });
+
+    // Keep the starting area and ghost starting areas open.
+    [[1,1],[2,1],[1,2],[2,2],[16,1],[15,1],[16,2],
+     [1,24],[2,24],[1,23],[16,24],[15,24],[16,23],
+     [8,13],[9,13],[8,12],[9,12]].forEach(([x,y]) => {
+        if (pmMaze[y] && pmMaze[y][x] !== undefined) pmMaze[y][x] = 0;
+    });
+}
+
+function startPacman() {
+    stopPacmanTimer();
+    makePacmanMaze();
+    pmPlayer = { x: 1, y: 1 };
+    pmDirection = "right";
+    pmWantedDirection = "right";
+    pmGhosts = [
+        { x: 16, y: 1, color: "#ff4d6d", dir: "left" },
+        { x: 16, y: 24, color: "#38bdf8", dir: "up" },
+        { x: 1, y: 24, color: "#fb923c", dir: "right" }
+    ];
+    pmPoints = 0;
+    pmDotsLeft = 0;
+    pmOver = false;
+    pmWon = false;
+    pmMouth = 0.22;
+
+    for (let y = 1; y < PM_ROWS - 1; y++) {
+        for (let x = 1; x < PM_COLS - 1; x++) {
+            if (pmMaze[y][x] === 0) pmDotsLeft++;
+        }
+    }
+    // No pellet under Pac-Man or ghosts at the start.
+    [[pmPlayer.x, pmPlayer.y], ...pmGhosts.map(g => [g.x, g.y])].forEach(([x,y]) => {
+        if (pmMaze[y][x] === 0) pmDotsLeft--;
+        pmMaze[y][x] = 2;
+    });
+    document.getElementById("pacmanScore").textContent = "Score: 0";
+    document.getElementById("pacmanInstructions").textContent =
+        "Use arrow keys or WASD to collect all the dots and avoid the ghosts!";
+    drawPacmanGame();
+    pmTimer = setInterval(pacmanTick, 145);
+}
+
+function setPacmanDirection(direction) {
+    if (pmOver) return;
+    pmWantedDirection = direction;
+}
+
+function pmDelta(direction) {
+    return {
+        up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0]
+    }[direction];
+}
+
+function pmCanMove(x, y) {
+    return y >= 0 && y < PM_ROWS && x >= 0 && x < PM_COLS && pmMaze[y][x] !== 1;
+}
+
+function pmMove(pos, direction) {
+    const [dx, dy] = pmDelta(direction);
+    const x = pos.x + dx;
+    const y = pos.y + dy;
+    return pmCanMove(x, y) ? { x, y } : null;
+}
+
+function pacmanTick() {
+    if (pmOver) return;
+
+    const wanted = pmMove(pmPlayer, pmWantedDirection);
+    if (wanted) pmDirection = pmWantedDirection;
+    const nextPlayer = pmMove(pmPlayer, pmDirection);
+    if (nextPlayer) pmPlayer = nextPlayer;
+
+    if (pmMaze[pmPlayer.y][pmPlayer.x] === 0) {
+        pmMaze[pmPlayer.y][pmPlayer.x] = 2;
+        pmPoints += 10;
+        pmDotsLeft--;
+        document.getElementById("pacmanScore").textContent = "Score: " + pmPoints;
+    }
+
+    // Ghosts choose a legal route, usually favoring steps closer to Pac-Man.
+    pmGhosts.forEach(ghost => {
+        const directions = ["up", "down", "left", "right"];
+        const options = directions.map(dir => ({ dir, pos: pmMove(ghost, dir) }))
+            .filter(option => option.pos);
+        if (!options.length) return;
+        options.sort((a, b) => {
+            const da = Math.abs(a.pos.x - pmPlayer.x) + Math.abs(a.pos.y - pmPlayer.y);
+            const db = Math.abs(b.pos.x - pmPlayer.x) + Math.abs(b.pos.y - pmPlayer.y);
+            return da - db;
+        });
+        // A little randomness makes the ghosts less predictable.
+        const chosen = Math.random() < 0.72 ? options[0] : options[Math.floor(Math.random() * options.length)];
+        ghost.x = chosen.pos.x;
+        ghost.y = chosen.pos.y;
+        ghost.dir = chosen.dir;
+    });
+
+    if (pmGhosts.some(ghost => ghost.x === pmPlayer.x && ghost.y === pmPlayer.y)) {
+        pmOver = true;
+        stopPacmanTimer();
+        document.getElementById("pacmanInstructions").textContent =
+            "A ghost caught you! Press Restart Pac-Man to play again.";
+    } else if (pmDotsLeft <= 0) {
+        pmOver = true;
+        pmWon = true;
+        stopPacmanTimer();
+        document.getElementById("pacmanInstructions").textContent =
+            "You cleared the maze! Press Restart Pac-Man to play again.";
+    }
+
+    pmMouth = pmMouth > 0.22 ? 0.02 : 0.22;
+    drawPacmanGame();
+}
+
+document.addEventListener("keydown", function(e) {
+    if (document.getElementById("pacmanScreen").style.display === "none") return;
+    const key = e.key.toLowerCase();
+    const directions = {
+        arrowup: "up", w: "up", arrowdown: "down", s: "down",
+        arrowleft: "left", a: "left", arrowright: "right", d: "right"
+    };
+    if (directions[key]) {
+        e.preventDefault();
+        setPacmanDirection(directions[key]);
+    }
+});
+
+function drawPacmanGame() {
+    pacmanCtx.fillStyle = "#05051a";
+    pacmanCtx.fillRect(0, 0, pacmanCanvas.width, pacmanCanvas.height);
+
+    for (let y = 0; y < PM_ROWS; y++) {
+        for (let x = 0; x < PM_COLS; x++) {
+            const px = x * PM_CELL;
+            const py = y * PM_CELL;
+            if (pmMaze[y][x] === 1) {
+                pacmanCtx.fillStyle = "#172554";
+                pacmanCtx.fillRect(px + 1, py + 1, PM_CELL - 2, PM_CELL - 2);
+                pacmanCtx.strokeStyle = "#3b82f6";
+                pacmanCtx.lineWidth = 1.5;
+                pacmanCtx.strokeRect(px + 2, py + 2, PM_CELL - 4, PM_CELL - 4);
+            } else if (pmMaze[y][x] === 0) {
+                pacmanCtx.fillStyle = "#fde68a";
+                pacmanCtx.beginPath();
+                pacmanCtx.arc(px + PM_CELL / 2, py + PM_CELL / 2, 2.2, 0, Math.PI * 2);
+                pacmanCtx.fill();
+            }
+        }
+    }
+
+    // Pac-Man, with a little animated mouth.
+    const cx = pmPlayer.x * PM_CELL + PM_CELL / 2;
+    const cy = pmPlayer.y * PM_CELL + PM_CELL / 2;
+    const angle = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 }[pmDirection];
+    pacmanCtx.fillStyle = "#ffeb3b";
+    pacmanCtx.beginPath();
+    pacmanCtx.moveTo(cx, cy);
+    pacmanCtx.arc(cx, cy, 8.5, angle + pmMouth, angle + Math.PI * 2 - pmMouth);
+    pacmanCtx.closePath();
+    pacmanCtx.fill();
+
+    // Ghosts with rounded heads and small feet.
+    pmGhosts.forEach(ghost => {
+        const gx = ghost.x * PM_CELL + PM_CELL / 2;
+        const gy = ghost.y * PM_CELL + PM_CELL / 2;
+        pacmanCtx.fillStyle = ghost.color;
+        pacmanCtx.beginPath();
+        pacmanCtx.arc(gx, gy - 1, 8, Math.PI, 0);
+        pacmanCtx.lineTo(gx + 8, gy + 7);
+        pacmanCtx.lineTo(gx + 4, gy + 4);
+        pacmanCtx.lineTo(gx, gy + 7);
+        pacmanCtx.lineTo(gx - 4, gy + 4);
+        pacmanCtx.lineTo(gx - 8, gy + 7);
+        pacmanCtx.closePath();
+        pacmanCtx.fill();
+        pacmanCtx.fillStyle = "white";
+        pacmanCtx.beginPath();
+        pacmanCtx.arc(gx - 3, gy - 2, 2.5, 0, Math.PI * 2);
+        pacmanCtx.arc(gx + 3, gy - 2, 2.5, 0, Math.PI * 2);
+        pacmanCtx.fill();
+        pacmanCtx.fillStyle = "#111827";
+        pacmanCtx.beginPath();
+        pacmanCtx.arc(gx - 2.5, gy - 2, 1.2, 0, Math.PI * 2);
+        pacmanCtx.arc(gx + 3.5, gy - 2, 1.2, 0, Math.PI * 2);
+        pacmanCtx.fill();
+    });
+
+    if (pmOver) {
+        pacmanCtx.fillStyle = "rgba(0,0,0,0.78)";
+        pacmanCtx.fillRect(28, 205, pacmanCanvas.width - 56, 90);
+        pacmanCtx.textAlign = "center";
+        pacmanCtx.fillStyle = pmWon ? "#fde047" : "white";
+        pacmanCtx.font = "bold 23px Arial";
+        pacmanCtx.fillText(pmWon ? "MAZE CLEARED!" : "GAME OVER!", pacmanCanvas.width / 2, 242);
+        pacmanCtx.fillStyle = "white";
+        pacmanCtx.font = "16px Arial";
+        pacmanCtx.fillText("Score: " + pmPoints, pacmanCanvas.width / 2, 270);
+    }
+}
+
+// ============================================
+// LAGFACTORY RETRO-STYLE FOOTBALL GAME
+// Original arcade football mini-game inspired by classic 8-bit football.
+// ============================================
+
+const footballCanvas = document.getElementById("footballCanvas");
+const footballCtx = footballCanvas.getContext("2d");
+let footballTimer = null;
+let footballRunning = false;
+let footballOver = false;
+let footballQB = { x: 180, y: 452 };
+let footballReceiver = { x: 180, y: 155, dir: 1 };
+let footballDefenders = [];
+let footballBall = null;
+let footballYards = 0;
+let footballTDs = 0;
+let footballPasses = 0;
+let footballMessage = "Find your receiver and throw!";
+
+function openFootball() {
+    running = false;
+    stopSnakeTimer();
+    stopPacmanTimer();
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("snakeScreen").style.display = "none";
+    document.getElementById("pacmanScreen").style.display = "none";
+    document.getElementById("footballScreen").style.display = "block";
+    startFootball();
+}
+
+function stopFootballTimer() {
+    if (footballTimer !== null) {
+        clearInterval(footballTimer);
+        footballTimer = null;
+    }
+    footballRunning = false;
+}
+
+function startFootball() {
+    stopFootballTimer();
+    footballRunning = true;
+    footballOver = false;
+    footballQB = { x: 180, y: 452 };
+    footballReceiver = { x: 180, y: 155, dir: Math.random() < 0.5 ? -1 : 1 };
+    footballDefenders = [
+        { x: 92, y: 260, speed: 1.25 },
+        { x: 265, y: 325, speed: 1.05 },
+        { x: 175, y: 210, speed: 0.85 }
+    ];
+    footballBall = null;
+    footballYards = 0;
+    footballTDs = 0;
+    footballPasses = 0;
+    footballMessage = "Move left/right, then throw a pass!";
+    updateFootballLabels();
+    drawFootball();
+    footballTimer = setInterval(footballTick, 45);
+}
+
+function updateFootballLabels() {
+    document.getElementById("footballScore").textContent =
+        "Yards: " + footballYards + " | TDs: " + footballTDs;
+    document.getElementById("footballInstructions").textContent = footballMessage +
+        " Controls: ← → / A D, SPACE to pass.";
+}
+
+function moveFootballQB(direction) {
+    if (!footballRunning || footballOver) return;
+    footballQB.x = Math.max(35, Math.min(325, footballQB.x + direction * 22));
+    drawFootball();
+}
+
+function throwFootballPass() {
+    if (!footballRunning || footballOver || footballBall) return;
+    footballBall = {
+        x: footballQB.x + 8,
+        y: footballQB.y - 14,
+        targetX: footballReceiver.x,
+        targetY: footballReceiver.y,
+        speed: 10
+    };
+    footballPasses++;
+    footballMessage = "Pass in the air!";
+    updateFootballLabels();
+}
+
+function footballTick() {
+    if (!footballRunning || footballOver) return;
+
+    // Receiver runs across the field and occasionally changes direction.
+    footballReceiver.x += footballReceiver.dir * 2.15;
+    if (footballReceiver.x < 42 || footballReceiver.x > 318) footballReceiver.dir *= -1;
+    if (Math.random() < 0.018) footballReceiver.dir *= -1;
+
+    // Defenders pursue the receiver, making the passing window move.
+    footballDefenders.forEach(defender => {
+        const dx = footballReceiver.x - defender.x;
+        const dy = footballReceiver.y - defender.y;
+        const length = Math.max(1, Math.hypot(dx, dy));
+        defender.x += (dx / length) * defender.speed;
+        defender.y += (dy / length) * defender.speed;
+        defender.x = Math.max(24, Math.min(336, defender.x));
+        defender.y = Math.max(95, Math.min(390, defender.y));
+    });
+
+    if (footballBall) {
+        const dx = footballBall.targetX - footballBall.x;
+        const dy = footballBall.targetY - footballBall.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < footballBall.speed + 5) {
+            const caughtX = footballBall.targetX;
+            const caughtY = footballBall.targetY;
+            const defenderNearby = footballDefenders.some(d => Math.hypot(d.x - caughtX, d.y - caughtY) < 34);
+            footballBall = null;
+            if (defenderNearby) {
+                footballMessage = "INTERCEPTED! Turnover — try again.";
+                footballOver = true;
+                stopFootballTimer();
+            } else {
+                footballYards += 10 + Math.floor(Math.random() * 16);
+                footballMessage = "COMPLETE! + yards. Keep driving!";
+                if (footballYards >= 50) {
+                    footballTDs++;
+                    footballYards = 0;
+                    footballMessage = "TOUCHDOWN! You scored! New drive!";
+                    footballDefenders.forEach((d, i) => {
+                        d.x = [92, 265, 175][i];
+                        d.y = [260, 325, 210][i];
+                    });
+                }
+                // New receiver route after every catch.
+                footballReceiver.y = 115 + Math.random() * 95;
+                footballReceiver.x = 55 + Math.random() * 250;
+            }
+            updateFootballLabels();
+        } else {
+            footballBall.x += dx / distance * footballBall.speed;
+            footballBall.y += dy / distance * footballBall.speed;
+        }
+    }
+
+    // If a defender reaches the quarterback, the play ends.
+    if (footballDefenders.some(d => Math.hypot(d.x - footballQB.x, d.y - footballQB.y) < 28)) {
+        footballOver = true;
+        footballRunning = false;
+        stopFootballTimer();
+        footballMessage = "SACK! Play over — restart to play again.";
+        updateFootballLabels();
+    }
+    drawFootball();
+}
+
+function drawFootballPlayer(x, y, color, facingUp = true) {
+    const c = footballCtx;
+    c.fillStyle = color;
+    c.fillRect(x - 9, y - 10, 18, 22);
+    c.fillStyle = "#f5c99a";
+    c.fillRect(x - 6, y - 18, 12, 10);
+    c.fillStyle = "#111827";
+    c.fillRect(x - 7, y + 10, 5, 9);
+    c.fillRect(x + 2, y + 10, 5, 9);
+    c.fillStyle = "white";
+    c.fillRect(x - 8, y - 4, 16, 3);
+}
+
+function drawFootball() {
+    const c = footballCtx;
+    const w = footballCanvas.width;
+    const h = footballCanvas.height;
+    c.fillStyle = "#15803d";
+    c.fillRect(0, 0, w, h);
+
+    // Field stripes and yard lines.
+    for (let y = 0; y < h; y += 80) {
+        c.fillStyle = (y / 80) % 2 ? "rgba(255,255,255,0.035)" : "rgba(0,0,0,0.035)";
+        c.fillRect(0, y, w, 80);
+    }
+    c.strokeStyle = "rgba(255,255,255,0.72)";
+    c.lineWidth = 2;
+    for (let y = 40; y < h; y += 80) {
+        c.beginPath(); c.moveTo(12, y); c.lineTo(w - 12, y); c.stroke();
+        c.fillStyle = "rgba(255,255,255,0.85)";
+        for (let x = 28; x < w - 20; x += 24) {
+            c.fillRect(x, y - 4, 3, 8);
+        }
+    }
+    c.fillStyle = "#166534";
+    c.fillRect(0, 0, w, 38);
+    c.fillRect(0, h - 35, w, 35);
+    c.fillStyle = "#fef08a";
+    c.font = "bold 15px monospace";
+    c.textAlign = "center";
+    c.fillText("LAGFACTORY", w / 2, 24);
+    c.fillText("END ZONE", w / 2, h - 13);
+
+    // Route guide from quarterback to receiver.
+    c.setLineDash([5, 6]);
+    c.strokeStyle = "rgba(255,255,255,0.45)";
+    c.beginPath(); c.moveTo(footballQB.x, footballQB.y - 15); c.lineTo(footballReceiver.x, footballReceiver.y + 5); c.stroke();
+    c.setLineDash([]);
+
+    // Receiver and defenders.
+    drawFootballPlayer(footballReceiver.x, footballReceiver.y, "#2563eb");
+    footballCtx.fillStyle = "white";
+    footballCtx.font = "bold 10px monospace";
+    footballCtx.textAlign = "center";
+    footballCtx.fillText("WR", footballReceiver.x, footballReceiver.y + 4);
+    footballDefenders.forEach(d => {
+        drawFootballPlayer(d.x, d.y, "#dc2626");
+        c.fillStyle = "white";
+        c.font = "bold 9px monospace";
+        c.fillText("DEF", d.x, d.y + 4);
+    });
+
+    // Quarterback and football.
+    drawFootballPlayer(footballQB.x, footballQB.y, "#facc15");
+    c.fillStyle = "#111827";
+    c.font = "bold 10px monospace";
+    c.fillText("QB", footballQB.x, footballQB.y + 4);
+    if (footballBall) {
+        c.fillStyle = "#92400e";
+        c.beginPath(); c.ellipse(footballBall.x, footballBall.y, 8, 5, -0.5, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = "white"; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(footballBall.x - 4, footballBall.y); c.lineTo(footballBall.x + 4, footballBall.y); c.stroke();
+    }
+
+    if (footballOver) {
+        c.fillStyle = "rgba(0,0,0,0.76)";
+        c.fillRect(25, 205, w - 50, 100);
+        c.fillStyle = "white";
+        c.font = "bold 24px Arial";
+        c.textAlign = "center";
+        c.fillText(footballMessage.includes("INTERCEPTED") ? "TURNOVER!" : "PLAY OVER!", w / 2, 245);
+        c.font = "16px Arial";
+        c.fillText("Touchdowns: " + footballTDs, w / 2, 276);
+    }
+}
+
+document.addEventListener("keydown", function(e) {
+    if (document.getElementById("footballScreen").style.display === "none") return;
+    const key = e.key.toLowerCase();
+    if (key === "arrowleft" || key === "a") {
+        e.preventDefault(); moveFootballQB(-1);
+    } else if (key === "arrowright" || key === "d") {
+        e.preventDefault(); moveFootballQB(1);
+    } else if (e.code === "Space") {
+        e.preventDefault(); throwFootballPass();
+    }
+});
+
+footballCanvas.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+    if (!footballRunning || footballOver) return;
+    const rect = footballCanvas.getBoundingClientRect();
+    const scaleX = footballCanvas.width / rect.width;
+    const clickX = (e.clientX - rect.left) * scaleX;
+    if (clickX < footballCanvas.width * 0.35) moveFootballQB(-1);
+    else if (clickX > footballCanvas.width * 0.65) moveFootballQB(1);
+    else throwFootballPass();
+});
+
+// ============================================
 // INITIALIZE
+// ============================================
 
 resetGame();
 
 </script>
-
 </body>
 </html>
