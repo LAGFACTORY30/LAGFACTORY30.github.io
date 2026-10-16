@@ -40,6 +40,7 @@ window.addEventListener('unhandledrejection', e =>
   showError(e.reason || 'Module loading failed')
 );
 
+// Initialize after all game objects are defined.
 try {
   init();
 } catch (e) {
