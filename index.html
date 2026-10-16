@@ -1,165 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JORDAN'S APOCALYPSE Z — Campaign</title>
-<style>
-:root{--lime:#c8ff45;--red:#ff4545;--panel:rgba(8,12,14,.86);--line:rgba(255,255,255,.16)}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070a0b;color:#f3f5f4;font-family:Impact,'Arial Narrow',Arial,sans-serif}
-#game{position:fixed;inset:0;width:100%;height:100%;display:block;background:#111}
-.vignette{pointer-events:none;position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,.68) 100%);z-index:2}
-.scanlines{pointer-events:none;position:fixed;inset:0;z-index:3;opacity:.08;background:repeating-linear-gradient(0deg,transparent 0 3px,#fff 4px)}
-#hud{position:fixed;inset:0;z-index:4;pointer-events:none;display:none}
-.brand{position:absolute;left:26px;top:22px;text-shadow:0 2px 8px #000}.brand small{display:block;color:var(--lime);font:700 10px Arial;letter-spacing:4px;margin-bottom:5px}.brand strong{font-size:clamp(19px,3vw,34px);letter-spacing:1px}
-#mission{position:absolute;top:25px;left:50%;transform:translateX(-50%);text-align:center;text-shadow:0 2px 8px #000;white-space:nowrap}#mission b{font-size:17px;letter-spacing:2px}#mission span{display:block;font:11px Arial;color:#d3d7d5;margin-top:5px;letter-spacing:2px}
-#stats{position:absolute;right:25px;top:23px;text-align:right;text-shadow:0 2px 8px #000;font:12px Arial;letter-spacing:1px}#stats strong{font:28px Impact;color:var(--lime)}#stats .kills{color:#ddd;margin-top:6px}
-#crosshair{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);opacity:.92}
-#crosshair:before,#crosshair:after{content:"";position:absolute;background:#fff;box-shadow:0 0 5px #000}#crosshair:before{width:2px;height:22px;left:10px}#crosshair:after{height:2px;width:22px;top:10px}
-#hitmarker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:28px Arial;color:var(--red);opacity:0}
-#bottom{position:absolute;bottom:22px;left:26px;display:flex;align-items:flex-end;gap:18px;text-shadow:0 2px 8px #000}.ammo{font-size:clamp(28px,4vw,48px);line-height:1}.ammo small{font:11px Arial;color:#ccc;display:block;letter-spacing:2px;margin-bottom:6px}.ammo em{font:20px Arial;color:#aaa;font-style:normal}
-#healthBox{width:150px;font:11px Arial;letter-spacing:2px;color:#ddd}#healthBar{height:5px;background:#444;margin-top:7px;width:100%}#healthFill{height:100%;width:100%;background:var(--lime);transition:width .2s}
-#weaponName{position:absolute;right:26px;bottom:25px;text-align:right;text-shadow:0 2px 8px #000}#weaponName strong{display:block;font-size:clamp(21px,3vw,34px);letter-spacing:1px}#weaponName span{font:10px Arial;color:var(--lime);letter-spacing:3px}
-#prompt{position:absolute;bottom:94px;left:50%;transform:translateX(-50%);font:12px Arial;letter-spacing:2px;background:rgba(0,0,0,.5);padding:9px 13px;white-space:nowrap}
-#toast{position:absolute;top:29%;left:50%;transform:translate(-50%,-50%);font-size:clamp(18px,3vw,32px);letter-spacing:3px;text-align:center;text-shadow:0 3px 10px #000;color:var(--lime);opacity:0;transition:opacity .2s}
-#overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,rgba(0,0,0,.92),rgba(0,0,0,.5)),radial-gradient(ellipse at 75% 50%,#29352c,#080b0c 65%);padding:24px}
-.menu{width:min(920px,100%);display:grid;grid-template-columns:1.25fr .75fr;gap:40px;align-items:center}.eyebrow{font:700 11px Arial;letter-spacing:5px;color:var(--lime);margin-bottom:14px}.title{font-size:clamp(44px,8vw,88px);line-height:.86;letter-spacing:-1px;margin:0 0 22px;text-transform:uppercase}.title span{color:var(--lime)}.desc{font:14px/1.7 Arial;color:#bfc6c1;max-width:510px}.btn{pointer-events:auto;cursor:pointer;border:0;background:var(--lime);color:#10130c;padding:16px 24px;font:900 15px Impact,Arial;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,100% 75%,93% 100%,0 100%);transition:transform .15s,background .15s}.btn:hover{transform:translateY(-2px);background:#e0ff8a}.secondary{background:transparent;color:white;border:1px solid #68716a;clip-path:none}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.intel{border:1px solid var(--line);background:rgba(5,8,8,.6);padding:24px}.intel h3{font-size:20px;letter-spacing:2px;margin:0 0 18px}.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:11px 0;font:12px Arial;color:#c4cbc5}.row strong{color:white}.controls{font:12px/1.9 Arial;color:#c4cbc5;margin-top:20px}.key{display:inline-block;border:1px solid #657068;padding:1px 6px;color:#fff;border-radius:3px;font-size:10px}
-#pauseCard{display:none;position:fixed;z-index:9;inset:0;background:rgba(0,0,0,.78);align-items:center;justify-content:center;text-align:center}.pauseInner h2{font-size:54px;margin:0 0 8px}.pauseInner p{font:13px Arial;color:#bbb;margin-bottom:25px}
-
-#touchControls{display:none;position:absolute;inset:0;pointer-events:none}
-#movePad{position:absolute;left:18px;bottom:115px;width:132px;height:132px;border:1px solid rgba(255,255,255,.28);border-radius:50%;background:rgba(0,0,0,.24);pointer-events:auto;touch-action:none}
-#moveStick{position:absolute;left:43px;top:43px;width:44px;height:44px;border-radius:50%;background:rgba(200,255,69,.65);border:1px solid rgba(255,255,255,.65)}
-.touchActions{position:absolute;right:18px;bottom:105px;display:flex;gap:10px;align-items:flex-end;pointer-events:auto}
-.touchBtn{border:1px solid rgba(255,255,255,.5);background:rgba(8,12,14,.68);color:#fff;border-radius:50%;width:66px;height:66px;font:12px Impact,Arial;letter-spacing:1px;touch-action:none}
-.touchBtn.fire{width:82px;height:82px;background:rgba(200,255,69,.78);color:#10130c;border-color:#e0ff8a}
-#lookHint{position:absolute;right:20px;bottom:205px;font:10px Arial;letter-spacing:1px;color:#ddd;text-shadow:0 1px 4px #000}
-@media(pointer:coarse){#touchControls{display:block}#prompt{bottom:84px;top:auto}}
-@media(max-width:680px){.menu{grid-template-columns:1fr;gap:22px}.intel{display:none}.title{font-size:52px}.brand{left:14px;top:13px}#mission{top:76px}#stats{right:14px;top:14px}#bottom{left:14px;bottom:14px;gap:10px}#weaponName{right:14px;bottom:16px}#healthBox{width:90px}#prompt{bottom:82px;font-size:10px}.desc{font-size:13px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090d0e" />
+  <title>Jordan's Apocalypse Z — 3D Campaign</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
+      }
+    }
+  </script>
 </head>
 <body>
-<canvas id="game"></canvas><div class="vignette"></div><div class="scanlines"></div>
-<div id="hud">
-  <div class="brand"><small>CLASSIFIED // CAMPAIGN</small><strong>APOCALYPSE <span style="color:var(--lime)">Z</span></strong></div>
-  <div id="mission"><b id="missionTitle">NIGHTFALL</b><span id="missionSub">SURVIVE THE OUTBREAK</span></div>
-  <div id="stats"><div>ROUND <strong id="round">01</strong></div><div class="kills">ELIMINATIONS <b id="kills">0</b></div></div>
-  <div id="crosshair"></div><div id="hitmarker">×</div>
-  <div id="toast"></div>
-  <div id="bottom"><div class="ammo"><small>AMMO / RESERVE</small><span id="mag">12</span> <em>/ <span id="reserve">72</span></em></div><div id="healthBox">VITALS <b id="healthText">100</b><div id="healthBar"><div id="healthFill"></div></div></div></div>
-  <div id="prompt">CLICK TO LOCK AIM · WASD MOVE · CLICK FIRE · R RELOAD</div>
-  <div id="weaponName"><strong id="gunName">SERVICE PISTOL</strong><span id="gunTier">SIDEARM // TIER 1</span></div>
-</div>
-<div id="overlay">
-  <div class="menu">
-    <div>
-      <div class="eyebrow">JORDAN WOODS PRESENTS · SINGLE-PLAYER CAMPAIGN</div>
-      <h1 class="title">JORDAN'S<br><span>APOCALYPSE Z</span></h1>
-      <p class="desc">The city fell in six hours. The radios went silent. Something is moving in the dark. Fight through endless waves, earn upgrades with every kill, and build your way from a battered pistol to the legendary RAY GUN.</p>
-      <div class="actions"><button class="btn" id="startBtn">▶ Deploy into campaign</button><button class="btn secondary" id="howBtn">Field manual</button><button class="btn secondary" id="fullBtn">Fullscreen</button><button class="btn secondary" id="qualityBtn">Graphics: High</button></div>
-      <p id="menuNote" class="desc" style="font-size:11px;margin-top:18px">A browser-made survival FPS prototype. Headphones recommended.</p>
-    </div>
-    <div class="intel">
-      <h3>MISSION BRIEFING</h3>
-      <div class="row"><span>OPERATION</span><strong>NIGHTFALL</strong></div><div class="row"><span>LOCATION</span><strong>SECTOR 09</strong></div><div class="row"><span>THREAT LEVEL</span><strong style="color:#ff5555">CRITICAL</strong></div><div class="row"><span>OBJECTIVE</span><strong>SURVIVE</strong></div>
-      <div class="controls"><b style="color:var(--lime)">CONTROLS</b><br><span class="key">W A S D</span> Move · <span class="key">MOUSE</span> Aim<br><span class="key">CLICK</span> Fire · <span class="key">R</span> Reload<br><span class="key">Q</span> Cycle unlocked weapons<br><span class="key">F</span> Melee attack · <span class="key">SHIFT</span> Sprint<br><span class="key">ESC</span> Pause / release mouse<br><br>Every elimination earns XP. New weapons unlock as your kill count rises. Melee weapons are part of your weapon cycle.</div>
-    </div>
-  </div>
-</div>
-<div id="pauseCard"><div class="pauseInner"><div class="eyebrow">OPERATION NIGHTFALL</div><h2>PAUSED</h2><p>Take a breath. The dead are still out there.</p><button class="btn" id="resumeBtn">Resume mission</button> <button class="btn secondary" id="quitBtn">Return to menu</button></div></div>
-<script>
-(()=>{
-'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const $=id=>document.getElementById(id);
-let W=innerWidth,H=innerHeight,playing=false,paused=false,dead=false,last=0,elapsed=0,spawnTimer=0,toastTimer=0,hitTimer=0,shootFlash=0,damageFlash=0,recoil=0;
-function resize(){W=canvas.width=innerWidth*devicePixelRatio;H=canvas.height=innerHeight*devicePixelRatio;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);W=innerWidth;H=innerHeight}
-addEventListener('resize',resize);resize();
-const weapons=[
-{id:'pistol',name:'SERVICE PISTOL',type:'SIDEARM',tier:1,unlock:0,damage:34,mag:12,reserve:72,rate:310,spread:.035,reload:1050,color:'#e5e0cb'},
-{id:'knife',name:'COMBAT KNIFE',type:'MELEE // SILENT',tier:2,unlock:5,damage:85,mag:1,reserve:0,rate:470,melee:true,range:2.15,color:'#d5e0dc'},
-{id:'bat',name:'SPIKED BAT',type:'MELEE // HEAVY',tier:3,unlock:12,damage:150,mag:1,reserve:0,rate:680,melee:true,range:2.4,color:'#b59a70'},
-{id:'shotgun',name:'BREACHER 12G',type:'SHOTGUN',tier:4,unlock:20,damage:25,pellets:8,mag:6,reserve:42,rate:650,spread:.17,reload:1450,color:'#d5aa64'},
-{id:'rifle',name:'M4A1 CARBINE',type:'ASSAULT RIFLE',tier:5,unlock:32,damage:31,mag:30,reserve:180,rate:105,spread:.055,reload:1400,color:'#8fa28c'},
-{id:'katana',name:'FIELD KATANA',type:'MELEE // ELITE',tier:6,unlock:48,damage:240,mag:1,reserve:0,rate:430,melee:true,range:3.0,color:'#b9d8e7'},
-{id:'raygun',name:'RAY GUN',type:'EXPERIMENTAL // CLASSIFIED',tier:7,unlock:65,damage:180,mag:20,reserve:120,rate:220,spread:.012,reload:1300,ray:true,color:'#80ffce'}
-];
-let state,keys={},zombies=[],particles=[],tracers=[],unlocked=[],current=0;
-function reset(){state={x:0,y:0,angle:0,hp:100,kills:0,score:0,round:1,ammo:12,reserve:72,reloading:false,lastShot:0,lastMelee:0,walk:0,damageCooldown:0};zombies=[];particles=[];tracers=[];unlocked=[0];current=0;spawnTimer=0;elapsed=0;dead=false;for(let i=0;i<7;i++)spawnZombie(true);updateHUD()}
-function say(t){$('toast').innerHTML=t;$('toast').style.opacity=1;toastTimer=1.8}
-function getWeapon(){return weapons[current]}
-function equip(idx){if(!unlocked.includes(idx))return;current=idx;let w=getWeapon();if(!w.melee&&state.ammo===0&&state.reserve===0){state.ammo=w.mag;state.reserve=w.reserve}updateHUD();say(w.name)}
-function updateHUD(){$('kills').textContent=state.kills;$('round').textContent=String(state.round).padStart(2,'0');$('healthText').textContent=Math.ceil(state.hp);$('healthFill').style.width=Math.max(0,state.hp)+'%';$('healthFill').style.background=state.hp<30?'#ff4545':'#c8ff45';let w=getWeapon();$('gunName').textContent=w.name;$('gunTier').textContent=w.type+' // TIER '+w.tier;$('mag').textContent=w.melee?'∞':state.ammo;$('reserve').textContent=w.melee?'MELEE':state.reserve}
-function spawnZombie(initial=false){let a=Math.random()*Math.PI*2,dist=initial?9+Math.random()*9:15+Math.random()*8;zombies.push({x:state.x+Math.sin(a)*dist,y:state.y+Math.cos(a)*dist,hp:initial?70:65+state.round*9,max:65+state.round*9,speed:.6+Math.random()*.22+state.round*.035,attack:0,hit:0,seed:Math.random()*10,dead:false,kind:Math.random()<.18?'runner':'walker'})}
-function begin(){reset();playing=true;paused=false;$('overlay').style.display='none';$('pauseCard').style.display='none';$('hud').style.display='block';canvas.requestPointerLock?.();say('MISSION STARTED<br><small style="font:11px Arial;color:white">SURVIVE THE OUTBREAK</small>');last=performance.now();requestAnimationFrame(loop)}
-function pause(){if(!playing||dead)return;paused=true;$('pauseCard').style.display='flex';document.exitPointerLock?.()}
-function resume(){if(dead)return;paused=false;$('pauseCard').style.display='none';canvas.requestPointerLock?.();last=performance.now();requestAnimationFrame(loop)}
-function quit(){playing=false;paused=false;document.exitPointerLock?.();$('pauseCard').style.display='none';$('overlay').style.display='flex';$('hud').style.display='none';}
-$('startBtn').onclick=begin;$('resumeBtn').onclick=resume;$('quitBtn').onclick=quit;
-$('fullBtn').onclick=()=>{const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()};
-let lowQuality=false;
-$('qualityBtn').onclick=()=>{lowQuality=!lowQuality;$('qualityBtn').textContent='Graphics: '+(lowQuality?'Low':'High');say('GRAPHICS '+(lowQuality?'LOW':'HIGH'))};
-$('touchFire').addEventListener('pointerdown',e=>{e.preventDefault();if(playing&&!paused)fire()});
-$('touchMelee').addEventListener('pointerdown',e=>{e.preventDefault();if(playing&&!paused)melee()});
-$('touchReload').addEventListener('pointerdown',e=>{e.preventDefault();if(playing&&!paused)reload()});
-let padActive=false,padOrigin=null,padVec={x:0,y:0};
-const pad=$('movePad'),stick=$('moveStick');
-pad.addEventListener('pointerdown',e=>{e.preventDefault();padActive=true;pad.setPointerCapture(e.pointerId);const r=pad.getBoundingClientRect();padOrigin={x:r.left+r.width/2,y:r.top+r.height/2};movePadPointer(e)});
-pad.addEventListener('pointermove',e=>{if(padActive)movePadPointer(e)});
-function movePadPointer(e){if(!padOrigin)return;let dx=e.clientX-padOrigin.x,dy=e.clientY-padOrigin.y,len=Math.hypot(dx,dy),max=42;if(len>max){dx=dx/len*max;dy=dy/len*max}padVec={x:dx/max,y:dy/max};stick.style.transform=`translate(${dx}px,${dy}px)`}
-function releasePad(){padActive=false;padOrigin=null;padVec={x:0,y:0};stick.style.transform='translate(0,0)'}
-pad.addEventListener('pointerup',releasePad);pad.addEventListener('pointercancel',releasePad);
-let touchLookX=null;
-canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&playing&&!paused){touchLookX=e.clientX}});
-canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&touchLookX!==null&&playing&&!paused){state.angle+=(e.clientX-touchLookX)*.006;touchLookX=e.clientX}});
-canvas.addEventListener('pointerup',e=>{if(e.pointerType==='touch')touchLookX=null});
+  <div id="game-root">
+    <canvas id="game-canvas" aria-label="3D zombie survival game"></canvas>
 
-$('howBtn').onclick=()=>{$('menuNote').innerHTML='FIELD MANUAL: Survive the waves. Aim for the head for bonus damage. Move constantly, reload between attacks, and use F for a close-range strike. Kills unlock gear at 5, 12, 20, 32, 48, and 65 eliminations.'};
-addEventListener('keydown',e=>{keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='Escape'&&playing){paused?resume():pause()}if(!playing||paused)return;if(e.code==='KeyR')reload();if(e.code==='KeyF')melee();if(e.code==='KeyQ')cycle();if(e.code.startsWith('Digit')){let n=Number(e.code.slice(5))-1;if(n>=0&&n<unlocked.length)equip(unlocked[n])}});
-addEventListener('keyup',e=>keys[e.code]=false);
-document.addEventListener('mousemove',e=>{if(document.pointerLockElement===canvas&&playing&&!paused){state.angle+=e.movementX*.0025;state.angle=Math.atan2(Math.sin(state.angle),Math.cos(state.angle))}});
-canvas.addEventListener('click',()=>{if(playing&&!paused&&document.pointerLockElement!==canvas)canvas.requestPointerLock?.();else if(playing&&!paused)fire()});
-function cycle(){let i=unlocked.indexOf(current);equip(unlocked[(i+1)%unlocked.length])}
-function reload(){let w=getWeapon();if(w.melee||state.reloading||state.ammo>=w.mag||state.reserve<=0)return;state.reloading=true;say('RELOADING');setTimeout(()=>{if(!playing)return;let need=w.mag-state.ammo,take=Math.min(need,state.reserve);state.ammo+=take;state.reserve-=take;state.reloading=false;updateHUD()},w.reload)}
-function closestTarget(range=100,spread=null){let w=getWeapon(),best=null,bestDiff=Infinity;for(const z of zombies){if(z.dead)continue;let dx=z.x-state.x,dy=z.y-state.y,dist=Math.hypot(dx,dy);if(dist>range)continue;let a=Math.atan2(dx,dy),diff=Math.atan2(Math.sin(a-state.angle),Math.cos(a-state.angle));let allowed=spread===null?(0.1+0.1/dist):spread;if(Math.abs(diff)<allowed&&Math.abs(diff)<bestDiff){best=z;bestDiff=Math.abs(diff)}}return best}
-function fire(){if(!playing||paused||dead||state.reloading)return;let w=getWeapon(),now=performance.now();if(w.melee){melee();return}if(now-state.lastShot<w.rate)return;state.lastShot=now;if(state.ammo<=0){say('OUT OF AMMO · PRESS R');return}state.ammo--;shootFlash=.09;recoil=1;updateHUD();let count=w.pellets||1,hitAny=false;for(let i=0;i<count;i++){let z=closestTarget(45,(w.spread||.04)+(count>1?.08:0));if(z){let d=Math.hypot(z.x-state.x,z.y-state.y),head=Math.random()<Math.max(.12,.42-d*.008),dmg=w.damage*(head?1.7:1);z.hp-=dmg;z.hit=.16;hitAny=true;hitTimer=.12;if(z.hp<=0)killZombie(z);else particles.push({x:z.x,y:z.y,life:.4,color:'#8c2525',size:.14})}}if(w.ray){for(let i=0;i<12;i++)particles.push({x:state.x+Math.sin(state.angle+(Math.random()-.5)*.3)*2,y:state.y+Math.cos(state.angle+(Math.random()-.5)*.3)*2,life:.35,color:'#66ffd1',size:.15})}if(hitAny){$('hitmarker').style.opacity=1;hitTimer=.12}}
-function melee(){if(!playing||paused||dead)return;let now=performance.now(),w=getWeapon();if(now-state.lastMelee<(w.melee?w.rate:550))return;state.lastMelee=now;recoil=1.3;let target=null,bd=Infinity;for(let z of zombies){if(z.dead)continue;let d=Math.hypot(z.x-state.x,z.y-state.y),a=Math.atan2(z.x-state.x,z.y-state.y),diff=Math.abs(Math.atan2(Math.sin(a-state.angle),Math.cos(a-state.angle)));if(d<(w.melee?w.range:1.65)&&diff<.8&&d<bd){target=z;bd=d}}if(target){target.hp-=w.melee?w.damage:65;target.hit=.2;hitTimer=.12;$('hitmarker').style.opacity=1;if(target.hp<=0)killZombie(target);else particles.push({x:target.x,y:target.y,life:.3,color:'#a92323',size:.15})}else say(w.melee?'SWING':'MELEE STRIKE')}
-function killZombie(z){if(z.dead)return;z.dead=true;state.kills++;state.score+=100;state.reserve+=getWeapon().melee?0:0;for(let i=0;i<weapons.length;i++){if(!unlocked.includes(i)&&state.kills>=weapons[i].unlock){unlocked.push(i);say('WEAPON UNLOCKED<br><span style="font-size:17px">'+weapons[i].name+'</span>');if(i===weapons.length-1)say('RAY GUN ACQUIRED<br><span style="font-size:17px">THE ENDGAME STARTS NOW</span>')}}if(state.kills%10===0){state.hp=Math.min(100,state.hp+15);say('FIELD BONUS +15 VITALS')}if(zombies.filter(z=>!z.dead).length===0){state.round++;say('ROUND '+String(state.round).padStart(2,'0')+' INCOMING');for(let i=0;i<Math.min(4+state.round,14);i++)spawnZombie()}updateHUD()}
-function update(dt){if(!playing||paused||dead)return;elapsed+=dt;state.damageCooldown-=dt;state.walk+=dt*((keys.KeyW||keys.KeyS||keys.KeyA||keys.KeyD)?9:2);let speed=(keys.ShiftLeft||keys.ShiftRight)?6.8:4.2;let forward=(keys.KeyW?1:0)-(keys.KeyS?1:0)-padVec.y,side=(keys.KeyD?1:0)-(keys.KeyA?1:0)+padVec.x;let len=Math.hypot(forward,side)||1;forward/=len;side/=len;let nx=state.x+(Math.sin(state.angle)*forward+Math.cos(state.angle)*side)*speed*dt,ny=state.y+(Math.cos(state.angle)*forward-Math.sin(state.angle)*side)*speed*dt;state.x=Math.max(-20,Math.min(20,nx));state.y=Math.max(-20,Math.min(20,ny));
-spawnTimer-=dt;if(spawnTimer<=0&&zombies.filter(z=>!z.dead).length<Math.min(5+state.round*2,24)){spawnZombie();spawnTimer=Math.max(.6,2.4-state.round*.12)}
-for(let z of zombies){if(z.dead)continue;let dx=state.x-z.x,dy=state.y-z.y,d=Math.hypot(dx,dy)||.001;if(d>1.05){z.x+=dx/d*z.speed*dt;z.y+=dy/d*z.speed*dt}else if(state.damageCooldown<=0){state.hp-=z.kind==='runner'?13:8;state.damageCooldown=.75;damageFlash=.22;updateHUD();if(state.hp<=0){state.hp=0;dead=true;document.exitPointerLock?.();setTimeout(()=>showGameOver(),500)}}}
-particles=particles.filter(p=>{p.life-=dt;return p.life>0});tracers=tracers.filter(p=>{p.life-=dt;return p.life>0});if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').style.opacity=0}if(hitTimer>0){hitTimer-=dt;if(hitTimer<=0)$('hitmarker').style.opacity=0}shootFlash=Math.max(0,shootFlash-dt);damageFlash=Math.max(0,damageFlash-dt);recoil=Math.max(0,recoil-dt*5)}
-function showGameOver(){$('overlay').style.display='flex';$('overlay').innerHTML=`<div class="menu"><div><div class="eyebrow">MISSION FAILED</div><h1 class="title">YOU<br><span>FELL</span></h1><p class="desc">The outbreak continues. You eliminated <b>${state.kills}</b> infected and reached round <b>${state.round}</b>. The next run starts now.</p><div class="actions"><button class="btn" onclick="location.reload()">▶ Redeploy</button></div></div><div class="intel"><h3>AFTER-ACTION REPORT</h3><div class="row"><span>ELIMINATIONS</span><strong>${state.kills}</strong></div><div class="row"><span>ROUND REACHED</span><strong>${state.round}</strong></div><div class="row"><span>SCORE</span><strong>${state.score}</strong></div></div></div>`;$('hud').style.display='none';playing=false}
-function project(wx,wy){let dx=wx-state.x,dy=wy-state.y,ca=Math.cos(state.angle),sa=Math.sin(state.angle),depth=dy*ca+dx*sa,side=dx*ca-dy*sa;return {depth,side,x:W/2+(side/depth)*(W*.68),scale:(H*.78)/Math.max(.15,depth)}}
-function drawWorld(){let sky=ctx.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#111b1c');sky.addColorStop(.55,'#374039');sky.addColorStop(1,'#6a5d48');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*.64);
- // distant skyline
- for(let i=0;i<(lowQuality?14:32);i++){let x=((i*137+Math.sin(i*7)*35)%W+W)%W,h=35+(i*47%130);ctx.fillStyle=['#111817','#1a211e','#202621'][i%3];ctx.fillRect(x,H*.43-h,W*.035,h);for(let j=0;j<4;j++){ctx.fillStyle='#b4a56a';ctx.globalAlpha=.13;ctx.fillRect(x+4+j*8,H*.43-h+10,W*.006,5)}ctx.globalAlpha=1}
- let ground=ctx.createLinearGradient(0,H*.54,0,H);ground.addColorStop(0,'#625b48');ground.addColorStop(.35,'#36372f');ground.addColorStop(1,'#121716');ctx.fillStyle=ground;ctx.fillRect(0,H*.53,W,H*.47);
- // perspective road and ground lines
- ctx.strokeStyle='rgba(180,171,134,.15)';ctx.lineWidth=1;for(let i=-12;i<=12;i++){ctx.beginPath();ctx.moveTo(W/2,H*.55);ctx.lineTo(W/2+i*W*.12,H);ctx.stroke()}for(let j=0;j<9;j++){let y=H*.56+(j*j/81)*H*.44;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
- // wreckage silhouettes at sides
- for(let i=0;i<(lowQuality?3:7);i++){let side=i%2?1:-1,depth=5+i*3,ang=state.angle+side*.9;let wx=state.x+Math.sin(ang)*depth,wy=state.y+Math.cos(ang)*depth,p=project(wx,wy);if(p.depth>0){let s=Math.min(2.5,H/p.depth*.7);ctx.fillStyle='#151a18';ctx.fillRect(p.x-s*30,H*.59-s*12,s*65,s*18);ctx.fillStyle='#302e26';ctx.beginPath();ctx.moveTo(p.x-s*32,H*.59-s*12);ctx.lineTo(p.x-s*13,H*.59-s*28);ctx.lineTo(p.x+s*27,H*.59-s*23);ctx.lineTo(p.x+s*35,H*.59-s*12);ctx.fill()}}
-}
-function drawZombie(z){let p=project(z.x,z.y);if(p.depth<.25||p.depth>40||p.x<-150||p.x>W+150)return;let s=Math.min(4.2,p.scale),x=p.x,y=H*.52+s*.22,bodyH=s*1.15,bodyW=s*.42;ctx.save();ctx.translate(x,y);let sway=Math.sin(elapsed*4+z.seed)*s*.06;ctx.globalAlpha=Math.min(1,2/p.depth);ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(0,s*.04,bodyW*.9,Math.max(2,s*.12),0,0,Math.PI*2);ctx.fill();
- // legs
- ctx.strokeStyle='#252d26';ctx.lineWidth=Math.max(2,s*.13);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-bodyW*.25,0);ctx.lineTo(-bodyW*.3+sway,bodyH*.38);ctx.moveTo(bodyW*.25,0);ctx.lineTo(bodyW*.34-sway,bodyH*.38);ctx.stroke();
- // torso
- ctx.fillStyle=z.hit?'#a34c43':(z.kind==='runner'?'#51584b':'#39483e');ctx.beginPath();ctx.moveTo(-bodyW*.47,-bodyH*.55);ctx.lineTo(bodyW*.4,-bodyH*.55);ctx.lineTo(bodyW*.58,0);ctx.lineTo(-bodyW*.6,0);ctx.fill();
- // arms
- ctx.strokeStyle='#65715a';ctx.lineWidth=Math.max(2,s*.12);ctx.beginPath();ctx.moveTo(-bodyW*.4,-bodyH*.45);ctx.lineTo(-bodyW*.8,-bodyH*.15+sway);ctx.lineTo(-bodyW*.72,bodyH*.02);ctx.moveTo(bodyW*.4,-bodyH*.45);ctx.lineTo(bodyW*.8,-bodyH*.2-sway);ctx.lineTo(bodyW*.72,bodyH*.02);ctx.stroke();
- // neck and head
- ctx.fillStyle='#6f7560';ctx.fillRect(-s*.07,-bodyH*.67,s*.14,s*.16);ctx.fillStyle=z.hit?'#b45c50':'#777a62';ctx.beginPath();ctx.ellipse(0,-bodyH*.77,s*.19,s*.21,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d7d9ae';ctx.fillRect(-s*.115,-bodyH*.8,s*.06,s*.035);ctx.fillRect(s*.055,-bodyH*.8,s*.06,s*.035);ctx.fillStyle='#29211c';ctx.fillRect(-s*.04,-bodyH*.69,s*.09,s*.035);
- // health indicator at close range
- if(p.depth<9&&z.hp<z.max){ctx.fillStyle='#111';ctx.fillRect(-s*.28,-bodyH*.98,s*.56,4);ctx.fillStyle='#e24d3f';ctx.fillRect(-s*.28,-bodyH*.98,s*.56*Math.max(0,z.hp/z.max),4)}
- ctx.restore()}
-function drawWeapon(){let w=getWeapon(),cx=W/2,base=H*.9+recoil*16;ctx.save();ctx.translate(cx,base);if(w.melee){ctx.rotate(-.12+recoil*.22);let long=w.id==='katana'?H*.46:w.id==='bat'?H*.35:H*.27;ctx.fillStyle='#242522';ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(70,-long*.2);ctx.lineTo(38,-long);ctx.lineTo(18,-long*.96);ctx.fill();if(w.id==='knife'||w.id==='katana'){ctx.fillStyle='#bfc9c2';ctx.beginPath();ctx.moveTo(24,-long*.15);ctx.lineTo(39,-long);ctx.lineTo(49,-long*.96);ctx.lineTo(35,-long*.12);ctx.fill()}else{ctx.fillStyle='#73533a';ctx.fillRect(25,-long*.95,12,long*.65);ctx.fillStyle='#a6a49a';for(let i=0;i<5;i++)ctx.fillRect(17+i*7,-long*.72,3,8)}}
-else {ctx.translate(0,recoil*14);ctx.fillStyle='#181b19';ctx.beginPath();ctx.moveTo(-80,10);ctx.lineTo(-65,-65);ctx.lineTo(-20,-93);ctx.lineTo(32,-83);ctx.lineTo(67,-35);ctx.lineTo(78,20);ctx.fill();ctx.fillStyle='#454b45';ctx.beginPath();ctx.moveTo(-48,-55);ctx.lineTo(-20,-85);ctx.lineTo(24,-78);ctx.lineTo(50,-40);ctx.lineTo(40,-12);ctx.lineTo(-45,-12);ctx.fill();ctx.fillStyle='#111';ctx.fillRect(-18,-H*.24,36,H*.2);ctx.fillStyle='#303731';ctx.fillRect(-12,-H*.24,24,H*.2);ctx.fillStyle='#080a09';ctx.fillRect(-7,-H*.32,14,H*.12);if(w.id==='shotgun'){ctx.fillStyle='#4a3927';ctx.fillRect(-42,-H*.12,85,18)}if(w.ray){ctx.fillStyle='#53ffc5';ctx.shadowColor='#53ffc5';ctx.shadowBlur=18;ctx.fillRect(-7,-H*.32,14,H*.12);ctx.shadowBlur=0;ctx.fillStyle='#b2ffe5';ctx.fillRect(-4,-H*.3,8,H*.09)}if(shootFlash>0){ctx.fillStyle=w.ray?'#68ffce':'#ffdb89';ctx.globalAlpha=shootFlash*9;ctx.beginPath();ctx.moveTo(-15,-H*.32);ctx.lineTo(0,-H*.45);ctx.lineTo(16,-H*.32);ctx.lineTo(0,-H*.28);ctx.fill()}}
-ctx.restore()}
-function render(){ctx.clearRect(0,0,W,H);drawWorld();let visible=zombies.filter(z=>!z.dead).sort((a,b)=>Math.hypot(b.x-state.x,b.y-state.y)-Math.hypot(a.x-state.x,a.y-state.y));for(let z of visible)drawZombie(z);for(let p of particles){let pr=project(p.x,p.y);if(pr.depth>0){ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(pr.x,H*.52,Math.max(2,p.size*pr.scale),0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}}drawWeapon();if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${damageFlash*1.5})`;ctx.fillRect(0,0,W,H)}if(state&&state.hp<35){ctx.fillStyle=`rgba(150,0,0,${(35-state.hp)/180})`;ctx.fillRect(0,0,W,H)}}
-function loop(now){if(!playing||paused)return;let dt=Math.min(.04,(now-last)/1000||.016);last=now;update(dt);render();if(playing&&!paused)requestAnimationFrame(loop)}
-// keep the menu atmospheric even before deployment
-function menuRender(t){if(playing)return;ctx.clearRect(0,0,W,H);let g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#26332b');g.addColorStop(.5,'#101817');g.addColorStop(1,'#050707');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);for(let i=0;i<(lowQuality?8:18);i++){let x=(i*157+Math.sin(t/1200+i)*55)%W,y=H*.45+(i%5)*25;ctx.fillStyle='#0a100e';ctx.fillRect(x,y,30+i%4*12,H-y);ctx.fillStyle='rgba(180,210,140,.12)';ctx.fillRect(x+6,y+14,4,9)}ctx.fillStyle='rgba(180,220,150,.035)';ctx.beginPath();ctx.arc(W*.77,H*.47,H*.3,0,Math.PI*2);ctx.fill();requestAnimationFrame(menuRender)}
-menuRender(0);
-})();
-</script>
+    <div id="vignette"></div>
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="mission">
+          <div class="eyebrow">OPERATION NIGHTFALL</div>
+          <div id="objective">Reach the extraction zone</div>
+        </div>
+        <div class="wave-box"><span>WAVE</span><strong id="wave">1</strong></div>
+      </div>
+      <div class="crosshair"><i></i><b></b></div>
+      <div id="hit-marker" class="hit-marker">×</div>
+      <div class="hud-bottom">
+        <div class="health-panel">
+          <div class="panel-label">VITALS <span id="health-text">100</span></div>
+          <div class="bar"><div id="health-fill" class="health-fill"></div></div>
+          <div class="small-status" id="status-text">SECTOR 07 · NIGHT</div>
+        </div>
+        <div class="weapon-panel">
+          <div class="weapon-name" id="weapon-name">M1911</div>
+          <div class="ammo"><strong id="ammo">12</strong><span> / </span><span id="reserve">60</span></div>
+          <div class="weapon-hint">[1] PISTOL · [2] RIFLE</div>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+      <div id="damage-flash"></div>
+      <div id="mobile-controls" class="mobile-controls">
+        <div id="stick-zone" class="stick-zone"><div id="stick-knob"></div></div>
+        <div class="mobile-actions">
+          <button id="mobile-reload" aria-label="Reload">↻</button>
+          <button id="mobile-fire" aria-label="Fire">FIRE</button>
+        </div>
+      </div>
+      <div id="pause-label" class="pause-label hidden">PAUSED — CLICK TO RESUME</div>
+    </div>
+
+    <section id="menu" class="menu-screen">
+      <div class="menu-noise"></div>
+      <div class="menu-content">
+        <div class="studio-mark"><span class="mark-line"></span> J.W. SURVIVAL DIVISION</div>
+        <div class="title-kicker">THE DEAD HAVE TAKEN THE CITY</div>
+        <h1>JORDAN'S<br><span>APOCALYPSE Z</span></h1>
+        <p class="subtitle">NIGHTFALL PROTOCOL</p>
+        <div class="menu-rule"></div>
+        <p class="story-copy">DAY 19 AFTER THE OUTBREAK.<br>COMMS ARE DOWN. THE EVACUATION ZONE IS LOST.<br>GET IN, FIND SURVIVORS, AND MAKE IT TO DAWN.</p>
+        <button id="start-button" class="primary-button">DEPLOY TO CAMPAIGN <span>▶</span></button>
+        <div class="menu-foot"><span>CAMPAIGN // SOLO</span><span>BUILD 0.1 · CHROMEBOOK READY</span></div>
+      </div>
+      <div class="menu-side-label">CLASSIFIED // SURVIVOR ACCESS ONLY</div>
+    </section>
+
+    <section id="briefing" class="overlay-screen hidden">
+      <div class="briefing-card">
+        <div class="eyebrow">MISSION BRIEFING · 01</div>
+        <h2>LAST LIGHT</h2>
+        <p>The city has gone silent. Your radio picks up one weak signal from a rooftop relay station. Cross the streets, eliminate the infected, and survive long enough for the extraction signal to come online.</p>
+        <div class="briefing-objectives">
+          <div><span>01</span> SURVIVE THE INCOMING WAVES</div>
+          <div><span>02</span> KEEP MOVING — THEY HEAR YOU</div>
+          <div><span>03</span> REACH THE NEXT SIGNAL</div>
+        </div>
+        <button id="deploy-button" class="primary-button">ENTER THE CITY <span>▶</span></button>
+        <p class="controls-note">WASD move · Mouse look · Click shoot · R reload · 1/2 switch weapon · Shift sprint · Esc pause</p>
+      </div>
+    </section>
+
+    <section id="game-over" class="overlay-screen hidden">
+      <div class="briefing-card game-over-card">
+        <div class="eyebrow">SIGNAL LOST</div>
+        <h2>YOU DIDN'T MAKE IT.</h2>
+        <p>The infected have overrun your position. The city is still out there.</p>
+        <div class="final-stats" id="final-stats">ZOMBIES ELIMINATED: 0</div>
+        <button id="retry-button" class="primary-button">REDEPLOY <span>↻</span></button>
+      </div>
+    </section>
+    <div id="error-panel" class="hidden"></div>
+  </div>
+  <script type="module" src="./game.js"></script>
 </body>
 </html>
