@@ -13,6 +13,7 @@ const gameOver = $('game-over');
 const errorPanel = $('error-panel');
 
 let renderer, scene, camera, clock;
+let worldReady = false;
 let started = false;
 let paused = false;
 let gameEnded = false;
@@ -443,6 +444,11 @@ function startGame() {
 }
 
 function deploy() {
+  if (!worldReady) {
+    showError(new Error('The 3D world has not finished initializing. Check the error message above and reload the page.'));
+    return;
+  }
+
   briefing.classList.add('hidden');
   gameOver.classList.add('hidden');
   hud.classList.remove('hidden');
@@ -1098,6 +1104,10 @@ function init() {
     throw new Error('Missing #game-canvas element in index.html');
   }
 
+  // Wire up the menu and briefing buttons before WebGL/world setup.
+  // If rendering fails, the UI still responds and shows an error message.
+  bindEvents();
+
   renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: !isCoarse,
@@ -1130,7 +1140,7 @@ function init() {
 
   buildWorld();
   buildWeapon();
-  bindEvents();
+  worldReady = true;
   animate();
 }
 
