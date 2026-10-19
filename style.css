@@ -312,3 +312,108 @@ h1 span {
 
 .final-stats {
   margin-top: 22px;
+
+
+/* Night-vision controls and weapon reticle */
+.hud-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.night-vision-button {
+  padding: 10px 12px;
+  border: 1px solid rgba(160, 220, 135, 0.65);
+  background: rgba(7, 14, 10, 0.88);
+  color: #c9f6a7;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(125, 255, 90, 0.25);
+}
+
+.night-vision-button[aria-pressed="true"] {
+  background: rgba(77, 130, 54, 0.85);
+  border-color: #baff8a;
+  color: #f0ffe8;
+  box-shadow: 0 0 18px rgba(112, 255, 75, 0.28);
+}
+
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 0 2px #000);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(228, 245, 220, 0.95);
+  box-shadow: 0 0 2px #000;
+}
+
+.crosshair::before {
+  width: 2px;
+  height: 7px;
+  top: 0;
+  left: 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.22);
+}
+
+.crosshair::after {
+  width: 2px;
+  height: 7px;
+  bottom: 0;
+  left: 10px;
+}
+
+.crosshair i,
+.crosshair b {
+  position: absolute;
+  display: block;
+  background: rgba(228, 245, 220, 0.95);
+  box-shadow: 0 0 2px #000;
+}
+
+.crosshair i {
+  width: 7px;
+  height: 2px;
+  left: 0;
+  top: 10px;
+}
+
+.crosshair b {
+  width: 7px;
+  height: 2px;
+  right: 0;
+  top: 10px;
+}
+
+#game-root.night-vision::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(80, 255, 70, 0.09);
+  box-shadow: inset 0 0 100px rgba(75, 255, 65, 0.23);
+  mix-blend-mode: screen;
+}
+
+#game-root.night-vision #game-canvas {
+  filter: sepia(1) saturate(2.5) hue-rotate(45deg) brightness(1.55) contrast(1.25);
+}
+
+@media (max-width: 600px) {
+  .hud-actions { gap: 7px; }
+  .night-vision-button { padding: 8px; font-size: 8px; letter-spacing: .4px; }
+}
