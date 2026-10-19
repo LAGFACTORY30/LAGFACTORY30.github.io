@@ -1,99 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#090d0e" />
-  <title>Jordan's Apocalypse Z — 3D Campaign</title>
- <link rel="stylesheet" href="./style.css?v=7" />
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
-      }
-    }
-  </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071421">
+<title>JETSTORM — Flight Combat</title>
+<link rel="stylesheet" href="./style.css?v=1">
 </head>
 <body>
-  <div id="game-root">
-    <canvas id="game-canvas" aria-label="3D zombie survival game"></canvas>
-
-    <div id="vignette"></div>
-    <div id="hud" class="hidden">
-      <div class="hud-top">
-        <div class="mission">
-          <div class="eyebrow">OPERATION NIGHTFALL</div>
-          <div id="objective">Reach the extraction zone</div>
-        </div>
-        <div class="hud-actions"><button id="night-vision-button" class="night-vision-button" type="button" aria-pressed="false">☾ NIGHT VISION: OFF</button><div class="wave-box"><span>WAVE</span><strong id="wave">1</strong></div></div>
-      </div>
-      <div class="crosshair"><i></i><b></b></div>
-      <div id="hit-marker" class="hit-marker">×</div>
-      <div class="hud-bottom">
-        <div class="health-panel">
-          <div class="panel-label">VITALS <span id="health-text">100</span></div>
-          <div class="bar"><div id="health-fill" class="health-fill"></div></div>
-          <div class="small-status" id="status-text">SECTOR 07 · NIGHT</div>
-        </div>
-        <div class="weapon-panel">
-          <div class="weapon-name" id="weapon-name">M1911</div>
-          <div class="ammo"><strong id="ammo">12</strong><span> / </span><span id="reserve">60</span></div>
-          <div class="weapon-hint">[1] PISTOL · [2] RIFLE</div>
-        </div>
-      </div>
-      <div id="toast" class="toast"></div>
-      <div id="damage-flash"></div>
-      <div id="mobile-controls" class="mobile-controls">
-        <div id="stick-zone" class="stick-zone"><div id="stick-knob"></div></div>
-        <div class="mobile-actions">
-          <button id="mobile-reload" aria-label="Reload">↻</button>
-          <button id="mobile-fire" aria-label="Fire">FIRE</button>
-        </div>
-      </div>
-      <div id="pause-label" class="pause-label hidden">PAUSED — CLICK TO RESUME</div>
-    </div>
-
-    <section id="menu" class="menu-screen">
-      <div class="menu-noise"></div>
-      <div class="menu-content">
-        <div class="studio-mark"><span class="mark-line"></span> J.W. SURVIVAL DIVISION</div>
-        <div class="title-kicker">THE DEAD HAVE TAKEN THE CITY</div>
-        <h1>JORDAN'S<br><span>APOCALYPSE Z</span></h1>
-        <p class="subtitle">NIGHTFALL PROTOCOL</p>
-        <div class="menu-rule"></div>
-        <p class="story-copy">DAY 19 AFTER THE OUTBREAK.<br>COMMS ARE DOWN. THE EVACUATION ZONE IS LOST.<br>GET IN, FIND SURVIVORS, AND MAKE IT TO DAWN.</p>
-        <button id="start-button" class="primary-button">DEPLOY TO CAMPAIGN <span>▶</span></button>
-        <div class="menu-foot"><span>CAMPAIGN // SOLO</span><span>BUILD 0.1 · CHROMEBOOK READY</span></div>
-      </div>
-      <div class="menu-side-label">CLASSIFIED // SURVIVOR ACCESS ONLY</div>
-    </section>
-
-    <section id="briefing" class="overlay-screen hidden">
-      <div class="briefing-card">
-        <div class="eyebrow">MISSION BRIEFING · 01</div>
-        <h2>LAST LIGHT</h2>
-        <p>The city has gone silent. Your radio picks up one weak signal from a rooftop relay station. Cross the streets, eliminate the infected, and survive long enough for the extraction signal to come online.</p>
-        <div class="briefing-objectives">
-          <div><span>01</span> SURVIVE THE INCOMING WAVES</div>
-          <div><span>02</span> KEEP MOVING — THEY HEAR YOU</div>
-          <div><span>03</span> REACH THE NEXT SIGNAL</div>
-        </div>
-        <button id="deploy-button" class="primary-button">ENTER THE CITY <span>▶</span></button>
-        <p class="controls-note">WASD move · Mouse look · Click shoot · R reload · 1/2 switch weapon · Shift sprint · Esc pause</p>
-      </div>
-    </section>
-
-    <section id="game-over" class="overlay-screen hidden">
-      <div class="briefing-card game-over-card">
-        <div class="eyebrow">SIGNAL LOST</div>
-        <h2>YOU DIDN'T MAKE IT.</h2>
-        <p>The infected have overrun your position. The city is still out there.</p>
-        <div class="final-stats" id="final-stats">ZOMBIES ELIMINATED: 0</div>
-        <button id="retry-button" class="primary-button">REDEPLOY <span>↻</span></button>
-      </div>
-    </section>
-    <div id="error-panel" class="hidden"></div>
-  </div>
-  <script type="module" src="./game.js?v=11"></script>
+<main id="game">
+  <canvas id="flight" aria-label="Jet flying game"></canvas>
+  <div class="shade"></div>
+  <header class="topbar"><div class="brand"><span class="brand-mark">✦</span> JET<span>STORM</span></div><div class="top-status"><span class="live-dot"></span> FLIGHT SYSTEMS ONLINE</div></header>
+  <section class="hud" id="hud" hidden>
+    <div class="hud-card"><small>MISSION SCORE</small><strong id="score">000000</strong></div>
+    <div class="hud-card center"><small>ALTITUDE</small><strong id="altitude">8,400 FT</strong></div>
+    <div class="hud-card right"><small>HULL INTEGRITY</small><strong id="hull">100%</strong><div class="hull-track"><i id="hullbar"></i></div></div>
+    <div class="objective" id="objective">OBJECTIVE // SURVIVE THE FLIGHT</div>
+    <div class="weapon-status">WEAPON <b id="weapon">VULCAN CANNON</b><span>SPACE / FIRE</span></div>
+  </section>
+  <section class="screen" id="menu">
+    <div class="eyebrow"><span></span> FLIGHT COMBAT SIMULATOR</div>
+    <h1>OWN THE<br><em>SKIES.</em></h1>
+    <p class="intro">Strap into the cockpit. Fly through hostile airspace, dodge incoming fighters, and fight your way to the next zone.</p>
+    <div class="menu-meta"><div><small>MISSION</small><b>01 — BLUE HORIZON</b></div><div><small>CRAFT</small><b>F-27 NIGHTHAWK</b></div><div><small>MODE</small><b>ARCADE COMBAT</b></div></div>
+    <button id="start" class="primary"> <span>▶</span> START FLIGHT <b>→</b></button>
+    <div class="controls"> <span>↑ ↓ ← →</span> / <span>W A S D</span> TO FLY <i>•</i> <span>SPACE</span> TO FIRE <i>•</i> <span>SHIFT</span> BOOST</div>
+  </section>
+  <section class="pause screen compact" id="pause" hidden><div class="eyebrow">FLIGHT PAUSED</div><h2>TAKE A BREATHER.</h2><p>Press <b>P</b> or choose below to return to the mission.</p><button class="primary" id="resume">RESUME FLIGHT <b>→</b></button></section>
+  <section class="screen compact" id="end" hidden><div class="eyebrow">MISSION REPORT</div><h2 id="endtitle">FLIGHT COMPLETE</h2><p id="endtext">Good flying, pilot.</p><div class="final-score" id="finalscore">000000</div><button class="primary" id="again">FLY AGAIN <b>→</b></button></section>
+  <div class="toast" id="toast" hidden></div>
+  <footer><span>JETSTORM // FLIGHT DIVISION</span><span>KEEP YOUR EYES ON THE HORIZON</span></footer>
+</main>
+<script src="./game.js?v=1"></script>
 </body>
 </html>
