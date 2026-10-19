@@ -5,10 +5,11 @@ A browser-based 3D jet flying prototype built with Three.js. Designed for static
 ## Features
 
 - Three selectable aircraft with different speed and handling characteristics.
-- Procedurally shaped island terrain, coastal water, forests, a town, airbase, hangars, clouds, and elevated navigation checkpoints.
-- Chase camera and cockpit-style camera.
+- Procedurally shaped island terrain with generated ground texture, coastal water, forests, a town, airbase, hangars, clouds, and elevated navigation checkpoints.
+- More detailed procedural aircraft geometry with intakes, external tanks, panel seams, canopy framing, and squadron markings.
+- Chase camera plus a cockpit view with canopy framing, HUD reticle, and instrument panel.
 - Flight HUD with airspeed, altitude, heading, checkpoint distance, and a navigation radar.
-- Momentum-based flight controls, bank-to-turn steering, afterburner, pause, and flight trim.
+- Airspeed-dependent lift, gravity, drag, bank-dependent lift loss, low-speed stall warnings, G-load readout, afterburner, pause, and flight trim.
 - Responsive interface for desktop and smaller screens.
 
 ## Run / deploy
