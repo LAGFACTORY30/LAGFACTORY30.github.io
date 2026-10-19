@@ -486,3 +486,35 @@ h1 span {
   .night-vision-button { max-width: 135px; font-size: 9px; }
   .wave-box { min-width: 42px; padding: 6px; }
 }
+
+
+/* Cinematic survival-game finish */
+#game-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: .16;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 2px, transparent 4px);
+  mix-blend-mode: soft-light;
+}
+#vignette {
+  background:
+    radial-gradient(ellipse at center, transparent 26%, rgba(0,0,0,.2) 62%, rgba(0,0,0,.78) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.32), transparent 20%, transparent 68%, rgba(0,0,0,.52));
+}
+.crosshair { transition: transform .07s ease; }
+#hit-marker {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 4; pointer-events: none;
+  color: #e8eee2; font-size: 28px; font-weight: 300;
+  opacity: 0; text-shadow: 0 0 7px #000;
+}
+#damage-flash {
+  transition: background .1s ease;
+  pointer-events: none;
+}
+.primary-button { text-transform: uppercase; }
