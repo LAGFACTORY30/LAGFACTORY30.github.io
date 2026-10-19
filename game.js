@@ -47,6 +47,9 @@ let lastLookY = 0;
 
 const keys = new Set();
 const zombies = [];
+const bulletTracers = [];
+const bloodParticles = [];
+const corpses = [];
 const colliders = [];
 const raycaster = new THREE.Raycaster();
 const sceneBounds = 82;
@@ -737,6 +740,58 @@ function finishReload() {
   updateWeaponHud();
 }
 
+function spawnBulletTrail(hitPoint = null) {
+  const origin = new THREE.Vector3();
+  camera.getWorldPosition(origin);
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+  const end = hitPoint ? hitPoint.clone() : origin.clone().add(direction.multiplyScalar(48));
+  const start = origin.clone().add(direction.clone().multiplyScalar(0.45));
+  const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+  const material = new THREE.LineBasicMaterial({ color: weapon === 1 ? 0xffd58a : 0xffe8b0, transparent: true, opacity: 0.78, depthTest: false });
+  const line = new THREE.Line(geometry, material);
+  line.renderOrder = 10;
+  scene.add(line);
+  bulletTracers.push({ line, life: 0.075, maxLife: 0.075 });
+}
+
+function spawnBlood(position, count = 12) {
+  for (let i = 0; i < count; i++) {
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.025 + Math.random() * 0.035, 5, 4), new THREE.MeshBasicMaterial({ color: Math.random() > 0.25 ? 0x861b18 : 0x4b1010 }));
+    mesh.position.copy(position);
+    scene.add(mesh);
+    bloodParticles.push({ mesh, velocity: new THREE.Vector3((Math.random() - 0.5) * 3.2, 0.5 + Math.random() * 2.4, (Math.random() - 0.5) * 3.2), life: 0.55 + Math.random() * 0.55 });
+  }
+}
+
+function updateCombatEffects(delta) {
+  for (let i = bulletTracers.length - 1; i >= 0; i--) {
+    const tracer = bulletTracers[i];
+    tracer.life -= delta;
+    tracer.line.material.opacity = Math.max(0, tracer.life / tracer.maxLife);
+    if (tracer.life <= 0) {
+      scene.remove(tracer.line); tracer.line.geometry.dispose(); tracer.line.material.dispose(); bulletTracers.splice(i, 1);
+    }
+  }
+  for (let i = bloodParticles.length - 1; i >= 0; i--) {
+    const particle = bloodParticles[i];
+    particle.life -= delta; particle.velocity.y -= 5.8 * delta; particle.mesh.position.addScaledVector(particle.velocity, delta);
+    if (particle.mesh.position.y < 0.035) {
+      particle.mesh.position.y = 0.035; particle.velocity.y *= -0.18; particle.velocity.x *= 0.55; particle.velocity.z *= 0.55;
+    }
+    if (particle.life <= 0) {
+      scene.remove(particle.mesh); particle.mesh.geometry.dispose(); particle.mesh.material.dispose(); bloodParticles.splice(i, 1);
+    }
+  }
+  for (let i = corpses.length - 1; i >= 0; i--) {
+    const corpse = corpses[i]; corpse.life -= delta;
+    corpse.group.rotation.x = corpse.fallX * Math.min(1, corpse.age / 0.28);
+    corpse.group.rotation.z = corpse.fallZ * Math.min(1, corpse.age / 0.28);
+    corpse.group.position.y = Math.max(0, corpse.group.position.y - delta * 0.25); corpse.age += delta;
+    if (corpse.life <= 0) { scene.remove(corpse.group); corpses.splice(i, 1); }
+  }
+}
+
 function shoot() {
   if (
     !started ||
@@ -782,8 +837,10 @@ function shoot() {
   }
 
   const hits = raycaster.intersectObjects(targets, false);
+  spawnBulletTrail(hits.length ? hits[0].point : null);
 
   if (hits.length && hits[0].object.userData.zombieRef) {
+    spawnBlood(hits[0].point, weapon === 1 ? 9 : 13);
     damageZombie(
       hits[0].object.userData.zombieRef,
       weapon === 1 ? 48 : 27
@@ -806,7 +863,10 @@ function damageZombie(zombie, damage) {
     zombie.dead = true;
     kills++;
 
-    scene.remove(zombie.group);
+    const deathPoint = zombie.group.position.clone().add(new THREE.Vector3(0, 1.05, 0));
+    spawnBlood(deathPoint, 22);
+    zombie.group.rotation.order = 'ZYX';
+    corpses.push({ group: zombie.group, life: 12, age: 0, fallX: (Math.random() > 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.45), fallZ: (Math.random() - 0.5) * 0.8 });
 
     const index = zombies.indexOf(zombie);
     if (index >= 0) zombies.splice(index, 1);
@@ -1117,6 +1177,7 @@ function animate() {
 
   const delta = Math.min(clock.getDelta(), 0.05);
   updateTimers(delta);
+  updateCombatEffects(delta);
 
   if (started && !paused && !gameEnded) {
     updatePlayer(delta);
