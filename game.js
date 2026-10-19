@@ -40,6 +40,9 @@ let ambientLight = null;
 let elapsed = 0;
 let moveX = 0;
 let moveZ = 0;
+let playerVelocityX = 0;
+let playerVelocityZ = 0;
+let cameraBaseY = 1.72;
 let joystickPointer = null;
 let lookPointer = null;
 let lastLookX = 0;
@@ -550,6 +553,9 @@ function deploy() {
   zombies.length = 0;
 
   camera.position.set(0, 1.72, 8);
+  cameraBaseY = 1.72;
+  playerVelocityX = 0;
+  playerVelocityZ = 0;
   yaw = 0;
   pitch = 0;
 
@@ -1146,52 +1152,59 @@ function updatePlayer(delta) {
     (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
     moveX;
 
-  const f = THREE.MathUtils.clamp(forward, -1, 1);
-  const s = THREE.MathUtils.clamp(strafe, -1, 1);
-  const length = Math.hypot(f, s) || 1;
-  const sprinting = keys.has('ShiftLeft') || keys.has('ShiftRight');
-  const speed = sprinting ? 7.0 : 4.15;
+  let f = THREE.MathUtils.clamp(forward, -1, 1);
+  let s = THREE.MathUtils.clamp(strafe, -1, 1);
+  const inputLength = Math.hypot(f, s);
+  if (inputLength > 1) { f /= inputLength; s /= inputLength; }
 
-  const dx =
-    (Math.sin(yaw) * f + Math.cos(yaw) * s) *
-    speed * delta / length;
+  const sprinting = (keys.has('ShiftLeft') || keys.has('ShiftRight')) && inputLength > 0;
+  const targetSpeed = sprinting ? 5.65 : 3.15;
+  const targetVX = (Math.sin(yaw) * f + Math.cos(yaw) * s) * targetSpeed;
+  const targetVZ = (-Math.cos(yaw) * f + Math.sin(yaw) * s) * targetSpeed;
 
-  const dz =
-    (-Math.cos(yaw) * f + Math.sin(yaw) * s) *
-    speed * delta / length;
+  // Ease into movement and let momentum settle naturally when the keys are released.
+  const response = inputLength > 0 ? 10.5 : 13.5;
+  const blend = 1 - Math.exp(-response * delta);
+  playerVelocityX += (targetVX - playerVelocityX) * blend;
+  playerVelocityZ += (targetVZ - playerVelocityZ) * blend;
 
   const previous = camera.position.clone();
-  const next = camera.position.clone();
+  const dx = playerVelocityX * delta;
+  const dz = playerVelocityZ * delta;
 
-  // Try horizontal and forward movement separately for smooth wall sliding.
-  const xOnly = next.clone();
+  // Slide along a wall when one axis is blocked instead of snapping the whole body.
+  const xOnly = previous.clone();
   xOnly.x += dx;
   resolveCollision(xOnly, previous);
+  if (Math.abs(xOnly.x - (previous.x + dx)) > 0.001) playerVelocityX = 0;
 
-  const zOnly = next.clone();
+  const zOnly = previous.clone();
   zOnly.z += dz;
   resolveCollision(zOnly, previous);
+  if (Math.abs(zOnly.z - (previous.z + dz)) > 0.001) playerVelocityZ = 0;
 
-  next.x = xOnly.x;
-  next.z = zOnly.z;
-
-  camera.position.x = next.x;
-  camera.position.z = next.z;
+  camera.position.x = xOnly.x;
+  camera.position.z = zOnly.z;
   camera.rotation.order = 'YXZ';
   camera.rotation.y = yaw;
   camera.rotation.x = pitch;
 
   elapsed += delta;
+  const horizontalSpeed = Math.hypot(playerVelocityX, playerVelocityZ);
+  const moving = horizontalSpeed > 0.18;
+  const stride = sprinting ? 10.5 : 7.2;
+  const bobAmount = sprinting ? 0.045 : 0.022;
+  const bob = moving ? Math.abs(Math.sin(elapsed * stride)) * bobAmount : 0;
+  camera.position.y = cameraBaseY + bob;
 
-  const moving = Math.abs(f) + Math.abs(s) > 0.1;
+  // A restrained weapon sway follows movement; firing kicks the gun backward.
+  const sway = moving ? Math.sin(elapsed * stride * 0.5) * (sprinting ? 0.012 : 0.006) : 0;
+  weaponRoot.position.x = 0.34 + Math.sin(elapsed * 1.7) * Math.min(horizontalSpeed * 0.0018, 0.009);
+  weaponRoot.position.y = -0.29 - bob * 0.45 + sway + recoil * 0.18;
+  weaponRoot.position.z = -0.58 + recoil * 0.65;
 
-  weaponRoot.position.y = -0.29 +
-    (moving ? Math.sin(elapsed * (sprinting ? 12 : 7)) * (sprinting ? 0.035 : 0.014) : 0) +
-    recoil;
-
-  recoil = Math.max(0, recoil - delta * 0.65);
+  recoil = Math.max(0, recoil - delta * 1.8);
 }
-
 function updateZombies(delta) {
   for (const zombie of [...zombies]) {
     const dx = camera.position.x - zombie.group.position.x;
