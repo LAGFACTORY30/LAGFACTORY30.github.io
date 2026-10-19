@@ -34,6 +34,9 @@ let hurtCooldown = 0;
 let toastTimer = 0;
 let damageTimer = 0;
 let recoil = 0;
+let nightVision = false;
+let moonLight = null;
+let ambientLight = null;
 let elapsed = 0;
 let moveX = 0;
 let moveZ = 0;
@@ -140,11 +143,11 @@ function buildWorld() {
   scene.background = new THREE.Color(0x111a1d);
   scene.fog = new THREE.FogExp2(0x111a1d, 0.0125);
 
-  scene.add(
-    new THREE.HemisphereLight(0x9eafb7, 0x171915, 1.35)
-  );
+  ambientLight = new THREE.HemisphereLight(0x9eafb7, 0x171915, 1.35);
+  scene.add(ambientLight);
 
   const moon = new THREE.DirectionalLight(0xb7c7d2, 1.8);
+  moonLight = moon;
   moon.position.set(-22, 38, 16);
   moon.castShadow = !isCoarse;
   moon.shadow.mapSize.set(1024, 1024);
@@ -431,6 +434,28 @@ function updateWeaponHud() {
   $('reserve').textContent = String(weapon === 1 ? reserve : rifleReserve);
 }
 
+function setNightVision(enabled) {
+  nightVision = enabled;
+  const root = $('game-root');
+  const button = $('night-vision-button');
+  root.classList.toggle('night-vision', nightVision);
+  button.setAttribute('aria-pressed', String(nightVision));
+  button.textContent = nightVision ? '☾ NIGHT VISION: ON' : '☾ NIGHT VISION: OFF';
+
+  if (scene && scene.fog) {
+    scene.background.set(nightVision ? 0x172c17 : 0x111a1d);
+    scene.fog.color.set(nightVision ? 0x172c17 : 0x111a1d);
+    scene.fog.density = nightVision ? 0.006 : 0.0125;
+  }
+  if (ambientLight) ambientLight.intensity = nightVision ? 2.2 : 1.35;
+  if (moonLight) moonLight.intensity = nightVision ? 2.4 : 1.8;
+}
+
+function toggleNightVision() {
+  setNightVision(!nightVision);
+  showToast(nightVision ? 'NIGHT VISION ENABLED' : 'NIGHT VISION DISABLED', 1.5);
+}
+
 function showToast(message, seconds = 2.1) {
   const toast = $('toast');
   toast.textContent = message;
@@ -485,6 +510,7 @@ function deploy() {
   $('pause-label').classList.add('hidden');
 
   updateWeaponHud();
+  setNightVision(false);
   showToast('RADIO: Signal detected. Stay alive.', 3.2);
 
   if (!isCoarse && canvas.requestPointerLock) {
@@ -503,6 +529,7 @@ function bindEvents() {
   $('deploy-button').addEventListener('click', deploy);
   $('retry-button').addEventListener('click', deploy);
   $('mobile-reload').addEventListener('click', reload);
+  $('night-vision-button').addEventListener('click', toggleNightVision);
 
   $('mobile-fire').addEventListener('pointerdown', (event) => {
     event.preventDefault();
