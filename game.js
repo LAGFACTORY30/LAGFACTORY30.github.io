@@ -160,11 +160,18 @@ function buildWorld() {
   moon.shadow.camera.bottom = -48;
   scene.add(moon);
 
-  const fireLight = new THREE.PointLight(
-    0xe66c37, 20, 26, 2
-  );
-  fireLight.position.set(-7, 4, -9);
+  const fireLight = new THREE.PointLight(0xe66c37, 24, 28, 2);
+  fireLight.position.set(-7, 2.2, -9);
   scene.add(fireLight);
+
+  for (const lamp of [{x:5.7,z:-27},{x:-5.7,z:18},{x:5.7,z:61}]) {
+    const glow = new THREE.PointLight(0xb9c8c3, 4.5, 16, 2);
+    glow.position.set(lamp.x, 5.0, lamp.z); scene.add(glow);
+    addCylinder(scene, lamp.x, 2.5, lamp.z, 0.06, 0.09, 5.0, materials.metal, 8);
+    addBox(scene, lamp.x, 5.08, lamp.z, 0.52, 0.11, 0.24, materials.metal, false, false);
+    const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.36,0.035,0.14), new THREE.MeshBasicMaterial({color:0xd8dfc9}));
+    bulb.position.set(lamp.x,4.99,lamp.z); scene.add(bulb);
+  }
 
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(220, 220),
@@ -400,37 +407,77 @@ function buildWeapon() {
   updateWeaponModel();
 }
 
+let muzzleFlash = null;
+let muzzleLight = null;
+let muzzleTimer = 0;
+
 function updateWeaponModel() {
   while (weaponRoot.children.length) {
     const child = weaponRoot.children[0];
     weaponRoot.remove(child);
-
     if (child.geometry) child.geometry.dispose();
+    if (child.material && child.material !== materials.metal) {
+      if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+      else child.material.dispose();
+    }
   }
-
-  const body = makeMaterial(
-    weapon === 1 ? 0x252b2b : 0x343a36,
-    0.35, 0.65
-  );
-
-  const dark = makeMaterial(0x0a0c0c, 0.5, 0.2);
-  const grip = makeMaterial(0x30281f);
-
+  const body = makeMaterial(weapon === 1 ? 0x252b2b : 0x343a36, 0.28, 0.72);
+  const dark = makeMaterial(0x090c0c, 0.42, 0.25);
+  const grip = makeMaterial(0x30281f, 0.9, 0.02);
+  const edge = makeMaterial(0x59615c, 0.3, 0.8);
+  const addPart = (x,y,z,sx,sy,sz,mat) => addBox(weaponRoot,x,y,z,sx,sy,sz,mat,false,false);
+  const addTube = (x,y,z,radius,length,mat) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length,12),mat);
+    m.rotation.x=Math.PI/2; m.position.set(x,y,z); weaponRoot.add(m); return m;
+  };
   if (weapon === 1) {
-    addBox(weaponRoot, 0, 0, 0, 0.18, 0.15, 0.42, body);
-    addBox(weaponRoot, 0, -0.095, 0.12, 0.13, 0.17, 0.14, grip);
-    addBox(weaponRoot, 0, 0.035, -0.28, 0.075, 0.075, 0.32, dark);
-    addBox(weaponRoot, 0, 0.085, -0.22, 0.045, 0.018, 0.16, body);
+    // Pistol slide, barrel, sights, grip panels, trigger guard and trigger.
+    addPart(0,0,0,0.19,0.14,0.43,body);
+    addPart(0,0.015,-0.225,0.105,0.085,0.14,edge);
+    addTube(0,0.015,-0.31,0.026,0.24,dark);
+    addPart(0,-0.09,0.12,0.13,0.2,0.17,grip);
+    addPart(0,-0.06,0.205,0.14,0.12,0.055,dark);
+    addPart(-0.085,0.078,-0.1,0.035,0.025,0.06,dark);
+    addPart(0.085,0.078,-0.1,0.035,0.025,0.06,dark);
+    addPart(0,-0.07,-0.02,0.08,0.018,0.09,edge);
+    addPart(0.015,-0.065,0.045,0.035,0.07,0.04,dark);
+    addPart(-0.075,-0.07,0.1,0.012,0.13,0.11,edge);
+    addPart(0.075,-0.07,0.1,0.012,0.13,0.11,edge);
   } else {
-    addBox(weaponRoot, 0, 0, -0.03, 0.22, 0.18, 0.5, body);
-    addBox(weaponRoot, 0, -0.04, -0.38, 0.085, 0.085, 0.5, dark);
-    addBox(weaponRoot, 0, 0.1, -0.16, 0.07, 0.035, 0.32, body);
-    addBox(weaponRoot, 0, -0.11, 0.18, 0.15, 0.23, 0.2, grip);
-    addBox(weaponRoot, 0, -0.04, 0.25, 0.12, 0.12, 0.32, dark);
-    addBox(weaponRoot, -0.13, 0.03, -0.1, 0.035, 0.04, 0.42, dark);
+    // Rifle receiver, long barrel, gas tube, handguard, magazine, stock and sights.
+    addPart(0,0,-0.03,0.23,0.18,0.48,body);
+    addPart(0,0.01,-0.3,0.1,0.1,0.42,dark);
+    addTube(0,0.015,-0.53,0.025,0.48,dark);
+    addPart(0,0.09,-0.29,0.09,0.035,0.43,edge);
+    addPart(0,-0.15,-0.02,0.15,0.23,0.19,grip);
+    addPart(0,-0.15,0.19,0.13,0.22,0.23,dark);
+    addPart(0,0.0,0.29,0.17,0.16,0.43,dark);
+    addPart(0,0.045,0.49,0.14,0.1,0.13,grip);
+    addPart(0,0.115,-0.13,0.045,0.04,0.1,dark);
+    addPart(0,0.14,-0.12,0.026,0.035,0.06,edge);
+    for(let i=0;i<5;i++) addPart(0.0,0.015,-0.18-i*0.065,0.245,0.012,0.012,edge);
+    addPart(-0.13,0.025,-0.18,0.025,0.045,0.42,dark);
+    addPart(0.13,0.025,-0.18,0.025,0.045,0.42,dark);
   }
+  // First-person gloved hands and sleeves grip the weapon.
+  const sleeve = makeMaterial(0x242c28,0.95,0.02);
+  const glove = makeMaterial(0x171b19,0.9,0.05);
+  const makeEllipsoid=(x,y,z,sx,sy,sz,mat)=>{
+    const m=new THREE.Mesh(new THREE.SphereGeometry(1,12,9),mat);
+    m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=false;weaponRoot.add(m);return m;
+  };
+  makeEllipsoid(0.19,-0.16,0.06,0.12,0.15,0.18,sleeve);
+  makeEllipsoid(0.17,-0.105,-0.02,0.095,0.07,0.13,glove);
+  makeEllipsoid(-0.17,-0.19,-0.27,0.105,0.12,0.16,sleeve);
+  if(weapon===2) makeEllipsoid(-0.16,-0.11,-0.29,0.09,0.07,0.12,glove);
+  // Flash lives at the barrel tip and is hidden except for a shot.
+  muzzleFlash=new THREE.Mesh(new THREE.ConeGeometry(0.075,0.24,8),new THREE.MeshBasicMaterial({color:0xffc46b,transparent:true,opacity:0.96,blending:THREE.AdditiveBlending,depthWrite:false}));
+  muzzleFlash.rotation.x=-Math.PI/2;
+  muzzleFlash.position.set(0,0.015,weapon===1?-0.47:-0.79);
+  muzzleFlash.visible=false;weaponRoot.add(muzzleFlash);
+  if(muzzleLight){camera.remove(muzzleLight);}
+  muzzleLight=new THREE.PointLight(0xffb35c,0,3,2);muzzleLight.position.copy(muzzleFlash.position);weaponRoot.add(muzzleLight);
 }
-
 function updateWeaponHud() {
   $('weapon-name').textContent = weapon === 1 ? 'M1911' : 'M4 CARBINE';
   $('ammo').textContent = String(weapon === 1 ? ammo : rifleAmmo);
@@ -752,7 +799,7 @@ function spawnBulletTrail(hitPoint = null) {
   const delta = end.clone().sub(start);
   const length = Math.min(delta.length(), 32);
   if (length < 0.2) return;
-  const geometry = new THREE.CylinderGeometry(0.025, 0.025, length, 6, 1, true);
+  const geometry = new THREE.CylinderGeometry(0.012, 0.012, length, 6, 1, true);
   const material = new THREE.MeshBasicMaterial({
     color: weapon === 1 ? 0xffc45b : 0xfff0b0,
     transparent: true,
@@ -766,15 +813,15 @@ function spawnBulletTrail(hitPoint = null) {
   tracer.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize());
   tracer.renderOrder = 1000;
   scene.add(tracer);
-  bulletTracers.push({ line: tracer, life: 0.14, maxLife: 0.14 });
+  bulletTracers.push({ line: tracer, life: 0.085, maxLife: 0.085 });
 }
 
 function spawnBlood(position, count = 12) {
   for (let i = 0; i < count; i++) {
-    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.045 + Math.random() * 0.055, 6, 5), new THREE.MeshBasicMaterial({ color: Math.random() > 0.25 ? 0x861b18 : 0x4b1010 }));
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.055 + Math.random() * 0.07, 7, 6), new THREE.MeshBasicMaterial({ color: Math.random() > 0.25 ? 0x861b18 : 0x4b1010 }));
     mesh.position.copy(position);
     scene.add(mesh);
-    bloodParticles.push({ mesh, velocity: new THREE.Vector3((Math.random() - 0.5) * 3.2, 0.5 + Math.random() * 2.4, (Math.random() - 0.5) * 3.2), life: 0.8 + Math.random() * 0.7 });
+    bloodParticles.push({ mesh, velocity: new THREE.Vector3((Math.random() - 0.5) * 3.2, 0.5 + Math.random() * 2.4, (Math.random() - 0.5) * 3.2), life: 1.0 + Math.random() * 0.8 });
   }
 }
 
@@ -804,6 +851,25 @@ function updateCombatEffects(delta) {
     corpse.group.position.y = Math.max(0, corpse.group.position.y - delta * 0.25); corpse.age += delta;
     if (corpse.life <= 0) { scene.remove(corpse.group); corpses.splice(i, 1); }
   }
+}
+
+let audioContext = null;
+function playGunshot() {
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    if(audioContext.state === 'suspended') audioContext.resume();
+    const now=audioContext.currentTime;
+    const noiseBuffer=audioContext.createBuffer(1,Math.floor(audioContext.sampleRate*0.22),audioContext.sampleRate);
+    const data=noiseBuffer.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.2);
+    const noise=audioContext.createBufferSource();noise.buffer=noiseBuffer;
+    const filter=audioContext.createBiquadFilter();filter.type='lowpass';filter.frequency.value=weapon===1?1800:1250;
+    const gain=audioContext.createGain();gain.gain.setValueAtTime(weapon===1?0.8:0.62,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.19);
+    noise.connect(filter);filter.connect(gain);gain.connect(audioContext.destination);noise.start(now);noise.stop(now+0.22);
+    const thump=audioContext.createOscillator();thump.type='sine';thump.frequency.setValueAtTime(weapon===1?115:85,now);thump.frequency.exponentialRampToValueAtTime(35,now+0.11);
+    const thumpGain=audioContext.createGain();thumpGain.gain.setValueAtTime(0.32,now);thumpGain.gain.exponentialRampToValueAtTime(0.001,now+0.12);
+    thump.connect(thumpGain);thumpGain.connect(audioContext.destination);thump.start(now);thump.stop(now+0.13);
+  } catch (_) { playTone(weapon===1?115:155,0.08,'sawtooth',0.08); }
 }
 
 function shoot() {
@@ -880,7 +946,7 @@ function damageZombie(zombie, damage) {
     const deathPoint = zombie.group.position.clone().add(new THREE.Vector3(0, 1.05, 0));
     spawnBlood(deathPoint, 22);
     zombie.group.rotation.order = 'ZYX';
-    corpses.push({ group: zombie.group, life: 12, age: 0, fallX: (Math.random() > 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.45), fallZ: (Math.random() > 0.5 ? 1 : -1) * (0.85 + Math.random() * 0.5) });
+    corpses.push({ group: zombie.group, life: 18, age: 0, fallX: (Math.random() > 0.5 ? 1 : -1) * (1.05 + Math.random() * 0.4), fallZ: (Math.random() > 0.5 ? 1 : -1) * (0.85 + Math.random() * 0.45), startY: zombie.group.position.y });
 
     const index = zombies.indexOf(zombie);
     if (index >= 0) zombies.splice(index, 1);
@@ -1083,7 +1149,7 @@ function updatePlayer(delta) {
   const s = THREE.MathUtils.clamp(strafe, -1, 1);
   const length = Math.hypot(f, s) || 1;
   const sprinting = keys.has('ShiftLeft') || keys.has('ShiftRight');
-  const speed = sprinting ? 7.3 : 4.25;
+  const speed = sprinting ? 7.0 : 4.15;
 
   const dx =
     (Math.sin(yaw) * f + Math.cos(yaw) * s) *
