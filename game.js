@@ -741,26 +741,40 @@ function finishReload() {
 }
 
 function spawnBulletTrail(hitPoint = null) {
+  // Use a small emissive cylinder instead of a 1px WebGL line (line width is
+  // ignored by many browsers, including Chrome on some graphics drivers).
   const origin = new THREE.Vector3();
   camera.getWorldPosition(origin);
   const direction = new THREE.Vector3();
   camera.getWorldDirection(direction);
-  const end = hitPoint ? hitPoint.clone() : origin.clone().add(direction.multiplyScalar(48));
-  const start = origin.clone().add(direction.clone().multiplyScalar(0.45));
-  const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-  const material = new THREE.LineBasicMaterial({ color: weapon === 1 ? 0xffd58a : 0xffe8b0, transparent: true, opacity: 0.78, depthTest: false });
-  const line = new THREE.Line(geometry, material);
-  line.renderOrder = 10;
-  scene.add(line);
-  bulletTracers.push({ line, life: 0.075, maxLife: 0.075 });
+  const start = origin.clone().add(direction.clone().multiplyScalar(0.65));
+  const end = hitPoint ? hitPoint.clone() : origin.clone().add(direction.multiplyScalar(32));
+  const delta = end.clone().sub(start);
+  const length = Math.min(delta.length(), 32);
+  if (length < 0.2) return;
+  const geometry = new THREE.CylinderGeometry(0.025, 0.025, length, 6, 1, true);
+  const material = new THREE.MeshBasicMaterial({
+    color: weapon === 1 ? 0xffc45b : 0xfff0b0,
+    transparent: true,
+    opacity: 0.95,
+    depthTest: false,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  const tracer = new THREE.Mesh(geometry, material);
+  tracer.position.copy(start).add(end).multiplyScalar(0.5);
+  tracer.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize());
+  tracer.renderOrder = 1000;
+  scene.add(tracer);
+  bulletTracers.push({ line: tracer, life: 0.14, maxLife: 0.14 });
 }
 
 function spawnBlood(position, count = 12) {
   for (let i = 0; i < count; i++) {
-    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.025 + Math.random() * 0.035, 5, 4), new THREE.MeshBasicMaterial({ color: Math.random() > 0.25 ? 0x861b18 : 0x4b1010 }));
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.045 + Math.random() * 0.055, 6, 5), new THREE.MeshBasicMaterial({ color: Math.random() > 0.25 ? 0x861b18 : 0x4b1010 }));
     mesh.position.copy(position);
     scene.add(mesh);
-    bloodParticles.push({ mesh, velocity: new THREE.Vector3((Math.random() - 0.5) * 3.2, 0.5 + Math.random() * 2.4, (Math.random() - 0.5) * 3.2), life: 0.55 + Math.random() * 0.55 });
+    bloodParticles.push({ mesh, velocity: new THREE.Vector3((Math.random() - 0.5) * 3.2, 0.5 + Math.random() * 2.4, (Math.random() - 0.5) * 3.2), life: 0.8 + Math.random() * 0.7 });
   }
 }
 
@@ -866,7 +880,7 @@ function damageZombie(zombie, damage) {
     const deathPoint = zombie.group.position.clone().add(new THREE.Vector3(0, 1.05, 0));
     spawnBlood(deathPoint, 22);
     zombie.group.rotation.order = 'ZYX';
-    corpses.push({ group: zombie.group, life: 12, age: 0, fallX: (Math.random() > 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.45), fallZ: (Math.random() - 0.5) * 0.8 });
+    corpses.push({ group: zombie.group, life: 12, age: 0, fallX: (Math.random() > 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.45), fallZ: (Math.random() > 0.5 ? 1 : -1) * (0.85 + Math.random() * 0.5) });
 
     const index = zombies.indexOf(zombie);
     if (index >= 0) zombies.splice(index, 1);
