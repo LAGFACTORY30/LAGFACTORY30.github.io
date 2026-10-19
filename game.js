@@ -1103,32 +1103,33 @@ function playTone(frequency, duration, type = 'sine', volume = 0.04) {
   }
 }
 
-function resolveCollision(position) {
-  position.x = THREE.MathUtils.clamp(
-    position.x, -sceneBounds, sceneBounds
-  );
-
-  position.z = THREE.MathUtils.clamp(
-    position.z, -sceneBounds, sceneBounds
-  );
+function resolveCollision(position, previousPosition) {
+  // Resolve each axis independently so corners don't shove the player
+  // sideways or make movement stick against cars and buildings.
+  const radius = 0.38;
+  position.x = THREE.MathUtils.clamp(position.x, -sceneBounds, sceneBounds);
+  position.z = THREE.MathUtils.clamp(position.z, -sceneBounds, sceneBounds);
 
   for (const collider of colliders) {
-    if (
-      Math.abs(position.x - collider.x) < collider.hx + 0.35 &&
-      Math.abs(position.z - collider.z) < collider.hz + 0.35
-    ) {
-      const dx = position.x - collider.x;
-      const dz = position.z - collider.z;
+    const insideX = Math.abs(position.x - collider.x) < collider.hx + radius;
+    const insideZ = Math.abs(position.z - collider.z) < collider.hz + radius;
+    if (!insideX || !insideZ) continue;
 
-      if (
-        Math.abs(dx) / collider.hx >
-        Math.abs(dz) / collider.hz
-      ) {
-        position.x = collider.x +
-          Math.sign(dx || 1) * (collider.hx + 0.36);
+    const wasOutsideX = Math.abs(previousPosition.x - collider.x) >= collider.hx + radius;
+    const wasOutsideZ = Math.abs(previousPosition.z - collider.z) >= collider.hz + radius;
+
+    if (wasOutsideX) {
+      position.x = previousPosition.x;
+    } else if (wasOutsideZ) {
+      position.z = previousPosition.z;
+    } else {
+      // If already touching an edge, push out through the nearest face.
+      const pushX = collider.hx + radius - Math.abs(position.x - collider.x);
+      const pushZ = collider.hz + radius - Math.abs(position.z - collider.z);
+      if (pushX < pushZ) {
+        position.x = collider.x + Math.sign(position.x - collider.x || 1) * (collider.hx + radius);
       } else {
-        position.z = collider.z +
-          Math.sign(dz || 1) * (collider.hz + 0.36);
+        position.z = collider.z + Math.sign(position.z - collider.z || 1) * (collider.hz + radius);
       }
     }
   }
@@ -1159,11 +1160,20 @@ function updatePlayer(delta) {
     (-Math.cos(yaw) * f + Math.sin(yaw) * s) *
     speed * delta / length;
 
+  const previous = camera.position.clone();
   const next = camera.position.clone();
-  next.x += dx;
-  next.z += dz;
 
-  resolveCollision(next);
+  // Try horizontal and forward movement separately for smooth wall sliding.
+  const xOnly = next.clone();
+  xOnly.x += dx;
+  resolveCollision(xOnly, previous);
+
+  const zOnly = next.clone();
+  zOnly.z += dz;
+  resolveCollision(zOnly, previous);
+
+  next.x = xOnly.x;
+  next.z = zOnly.z;
 
   camera.position.x = next.x;
   camera.position.z = next.z;
