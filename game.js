@@ -57,6 +57,9 @@ const colliders = [];
 const raycaster = new THREE.Raycaster();
 const sceneBounds = 82;
 const isCoarse = matchMedia('(pointer: coarse)').matches;
+// Chromebooks and other low-power devices need a lighter rendering path.
+const lowPowerDevice = isCoarse || (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 4) <= 4;
+const renderPixelRatio = lowPowerDevice ? 1 : Math.min(window.devicePixelRatio || 1, 1.25);
 
 function showError(error) {
   const message = error && (error.stack || error.message)
@@ -742,7 +745,7 @@ function onResize() {
 
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(renderPixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -1296,14 +1299,14 @@ function init() {
 
   renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: !isCoarse,
+    antialias: !lowPowerDevice,
     powerPreference: 'high-performance'
   });
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = !isCoarse;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = !lowPowerDevice;
+  renderer.shadowMap.type = THREE.BasicShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
