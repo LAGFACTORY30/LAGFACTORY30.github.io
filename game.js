@@ -144,12 +144,12 @@ function addCylinder(
 
 function buildWorld() {
   scene.background = new THREE.Color(0x111a1d);
-  scene.fog = new THREE.FogExp2(0x111a1d, 0.0125);
+  scene.fog = new THREE.FogExp2(0x111a1d, 0.0105);
 
-  ambientLight = new THREE.HemisphereLight(0x9eafb7, 0x171915, 1.35);
+  ambientLight = new THREE.HemisphereLight(0xa9bbc2, 0x171915, 1.05);
   scene.add(ambientLight);
 
-  const moon = new THREE.DirectionalLight(0xb7c7d2, 1.8);
+  const moon = new THREE.DirectionalLight(0xb7c7d2, 2.15);
   moonLight = moon;
   moon.position.set(-22, 38, 16);
   moon.castShadow = !isCoarse;
@@ -916,66 +916,61 @@ function spawnZombie() {
   const z = camera.position.z - (24 + Math.random() * 35);
   group.position.set(x, 0, z);
 
-  const skin = materials.zombieSkin;
-  const cloth = materials.zombieDark;
-
-  addBox(group, 0, 1.12, 0, 0.58, 0.72, 0.34, cloth);
-  addBox(group, 0, 1.72, -0.015, 0.34, 0.36, 0.32, skin);
-  addBox(group, 0, 1.58, -0.19, 0.23, 0.09, 0.08, materials.blood);
-
-  const eyes = new THREE.MeshBasicMaterial({ color: 0xe4a35b });
-
-  addBox(
-    group, -0.085, 1.76, -0.18,
-    0.045, 0.035, 0.018, eyes, false, false
-  );
-
-  addBox(
-    group, 0.085, 1.76, -0.18,
-    0.045, 0.035, 0.018, eyes, false, false
-  );
-
-  const armL = addBox(
-    group, -0.42, 1.12, -0.02,
-    0.19, 0.68, 0.2, skin
-  );
-
-  const armR = addBox(
-    group, 0.42, 1.12, -0.02,
-    0.19, 0.68, 0.2, skin
-  );
-
-  armL.rotation.z = -0.22;
-  armR.rotation.z = 0.22;
-
-  const legL = addBox(
-    group, -0.17, 0.48, 0.02,
-    0.21, 0.62, 0.24, cloth
-  );
-
-  const legR = addBox(
-    group, 0.17, 0.48, 0.02,
-    0.21, 0.62, 0.24, cloth
-  );
-
-  const zombie = {
-    group,
-    hp: 100,
-    speed: 1 + Math.random() * 0.45 + wave * 0.055,
-    attack: 0,
-    dead: false,
-    phase: Math.random() * 4,
-    parts: { armL, armR, legL, legR }
+  // Procedural infected: rounded forms, layered torn clothing, pale skin,
+  // damaged face and jointed limbs instead of a single blocky figure.
+  const skin = new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x788675 : 0x8a8873, roughness: 0.98 });
+  const bruisedSkin = new THREE.MeshStandardMaterial({ color: 0x514d43, roughness: 1 });
+  const cloth = new THREE.MeshStandardMaterial({ color: [0x252d2b, 0x39352f, 0x343d32, 0x44322d][Math.floor(Math.random()*4)], roughness: 1 });
+  const tornCloth = new THREE.MeshStandardMaterial({ color: 0x171e1c, roughness: 1 });
+  const wound = new THREE.MeshStandardMaterial({ color: 0x451311, roughness: 1 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xe6b57b });
+  const makeSphere = (parent, pos, scale, mat, seg=12) => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1, seg, Math.max(7, seg-3)), mat);
+    m.position.set(...pos); m.scale.set(...scale); m.castShadow = !isCoarse; m.receiveShadow = !isCoarse; parent.add(m); return m;
+  };
+  const makeLimb = (parent, x, y, z, radius, length, mat) => {
+    const pivot = new THREE.Group(); pivot.position.set(x,y,z); parent.add(pivot);
+    const limb = new THREE.Mesh(new THREE.CapsuleGeometry(radius, Math.max(0.12,length-radius*2), 4, 7), mat);
+    limb.position.y = -length/2; limb.castShadow = !isCoarse; limb.receiveShadow = !isCoarse; pivot.add(limb);
+    return pivot;
   };
 
+  // Torso, hunched shoulders and a ragged outer layer.
+  makeSphere(group, [0,1.13,0], [0.34,0.48,0.22], cloth, 14);
+  makeSphere(group, [0,1.31,-0.015], [0.37,0.23,0.235], cloth, 12);
+  makeSphere(group, [0.08,1.1,-0.205], [0.12,0.25,0.025], tornCloth, 9);
+  makeSphere(group, [-0.12,0.93,-0.21], [0.09,0.2,0.024], bruisedSkin, 9);
+  makeSphere(group, [0,1.68,-0.015], [0.205,0.245,0.19], skin, 14);
+  makeSphere(group, [0,1.57,-0.13], [0.15,0.105,0.095], bruisedSkin, 12);
+  makeSphere(group, [0,1.55,-0.207], [0.095,0.035,0.018], wound, 10);
+  makeSphere(group, [-0.075,1.72,-0.18], [0.028,0.022,0.012], eyeMat, 8);
+  makeSphere(group, [0.075,1.72,-0.18], [0.028,0.022,0.012], eyeMat, 8);
+  makeSphere(group, [-0.12,1.65,-0.16], [0.045,0.06,0.018], wound, 8);
+  makeSphere(group, [0.13,1.77,-0.13], [0.035,0.045,0.018], bruisedSkin, 8);
+
+  const armL = makeLimb(group, -0.34, 1.37, -0.015, 0.095, 0.62, skin);
+  const armR = makeLimb(group, 0.34, 1.37, -0.015, 0.095, 0.62, skin);
+  armL.rotation.z = -0.42; armR.rotation.z = 0.42;
+  makeSphere(armL, [0,-0.57,-0.01], [0.105,0.12,0.09], skin, 9);
+  makeSphere(armR, [0,-0.57,-0.01], [0.105,0.12,0.09], skin, 9);
+
+  const legL = makeLimb(group, -0.15, 0.75, 0.015, 0.115, 0.67, cloth);
+  const legR = makeLimb(group, 0.15, 0.75, 0.015, 0.115, 0.67, cloth);
+  makeSphere(legL, [0,-0.61,-0.035], [0.13,0.09,0.22], tornCloth, 9);
+  makeSphere(legR, [0,-0.61,-0.035], [0.13,0.09,0.22], tornCloth, 9);
+
+  const zombie = {
+    group, hp: 100,
+    speed: 0.82 + Math.random() * 0.42 + wave * 0.045,
+    attack: 0, dead: false, phase: Math.random() * 4,
+    parts: { armL, armR, legL, legR }
+  };
   group.traverse((object) => {
     if (object.isMesh) object.userData.zombieRef = zombie;
   });
-
   scene.add(group);
   zombies.push(zombie);
 }
-
 function hurtPlayer(amount) {
   if (hurtCooldown > 0 || gameEnded) return;
 
@@ -1088,7 +1083,7 @@ function updatePlayer(delta) {
   const s = THREE.MathUtils.clamp(strafe, -1, 1);
   const length = Math.hypot(f, s) || 1;
   const sprinting = keys.has('ShiftLeft') || keys.has('ShiftRight');
-  const speed = sprinting ? 8.1 : 5.2;
+  const speed = sprinting ? 7.3 : 4.25;
 
   const dx =
     (Math.sin(yaw) * f + Math.cos(yaw) * s) *
@@ -1115,7 +1110,7 @@ function updatePlayer(delta) {
   const moving = Math.abs(f) + Math.abs(s) > 0.1;
 
   weaponRoot.position.y = -0.29 +
-    (moving ? Math.sin(elapsed * (sprinting ? 13 : 8)) * 0.018 : 0) +
+    (moving ? Math.sin(elapsed * (sprinting ? 12 : 7)) * (sprinting ? 0.035 : 0.014) : 0) +
     recoil;
 
   recoil = Math.max(0, recoil - delta * 0.65);
