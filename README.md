@@ -27,11 +27,11 @@ The site loads Three.js as an ES module from jsDelivr and fonts from Google Font
 - **S / Down Arrow** — pitch down
 - **A / Left Arrow** — bank left
 - **D / Right Arrow** — bank right
-- **Shift** — afterburner
+- **Shift** — afterburner\n- **B** — airbrake (slow down for landing)
 - **C** — switch chase / cockpit camera
 - **Space** — flight trim reset
 - **P / Escape** — pause or resume
-- **H** — return to hangar\n- **Touchscreen** — use the on-screen arrows and afterburner button
+- **H** — return to hangar\n- **Touchscreen** — use the on-screen arrows, airbrake, and afterburner buttons
 
 ## Notes
 
