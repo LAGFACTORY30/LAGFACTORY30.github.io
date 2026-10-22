@@ -22,3 +22,12 @@
 .walk-prompt.ready{background:#65e4f4;color:#071421;border-color:#65e4f4}
 .walk-keys{margin-top:12px;color:#9aafbf;font-size:9px;letter-spacing:1px;font-weight:800}.walk-keys i{font-style:normal;color:#65e4f4}
 @media(max-width:600px){.walk-hud{left:12px;bottom:18px;padding:13px;max-width:calc(100vw - 24px)}.walk-title{font-size:18px}.walk-subtitle{font-size:11px}}
+
+.crash-overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:radial-gradient(ellipse at center,rgba(110,12,12,.18),rgba(5,8,13,.82));backdrop-filter:grayscale(.8) blur(2px);pointer-events:auto}
+.crash-overlay[hidden]{display:none}
+.crash-panel{width:min(480px,90vw);padding:28px;border:1px solid #ff554d88;background:rgba(15,12,16,.94);box-shadow:0 0 45px #ff241b25;text-align:center;color:#f5f7fa}
+.crash-alert{color:#ff5b52;font-size:12px;font-weight:900;letter-spacing:3px}
+.crash-panel h2{margin:12px 0 8px;font:900 clamp(28px,5vw,48px) 'Barlow Condensed',sans-serif;letter-spacing:2px}
+.crash-panel p{color:#ffb4aa;font-size:11px;font-weight:800;letter-spacing:1.8px}
+.crash-instructions{margin-top:22px;padding:13px;border:1px solid #ff554d66;background:#ff554d12;font-size:12px;font-weight:800;letter-spacing:1.5px}
+.crash-instructions b{display:inline-grid;place-items:center;width:25px;height:25px;margin:0 4px;border:1px solid #ff5b52;color:#ff5b52}
