@@ -14,3 +14,11 @@
 @media(max-width:420px){.mission-stats{max-width:55%}.mission-stats span{padding:4px}.mission-stats b{font-size:8px}.touch-dpad{grid-template-columns:repeat(3,35px);grid-template-rows:repeat(2,35px)}.touch-boost{padding:0 8px;font-size:8px}.radar-wrap{width:108px}.radar-wrap canvas{width:92px;height:92px}.radar-key{font-size:5px}}
 
 .touch-pedals{display:flex;flex-direction:column;gap:6px}.touch-brake{height:38px;padding:0 10px;border:1px solid #ffb38c77;background:rgba(62,25,18,.72);color:#ffe2d4;font-size:8px;font-weight:800;letter-spacing:1px;touch-action:none;user-select:none}.touch-brake.pressed{background:#ffb38c;color:#20110c}
+
+.walk-hud{position:absolute;z-index:4;left:5vw;bottom:54px;max-width:min(560px,90vw);padding:18px 22px;background:rgba(4,16,26,.82);border:1px solid #65e4f455;backdrop-filter:blur(10px);box-shadow:0 12px 38px #0005;pointer-events:none}
+.walk-title{font:900 22px 'Barlow Condensed',sans-serif;letter-spacing:2.5px;color:#f3f7fa}.walk-title span{color:#65e4f4}
+.walk-subtitle{margin-top:6px;color:#b5c7d1;font-size:12px;line-height:1.6}
+.walk-prompt{margin-top:15px;padding:11px 13px;border:1px solid #65e4f455;color:#65e4f4;font-size:11px;font-weight:800;letter-spacing:1.4px;background:#65e4f410}
+.walk-prompt.ready{background:#65e4f4;color:#071421;border-color:#65e4f4}
+.walk-keys{margin-top:12px;color:#9aafbf;font-size:9px;letter-spacing:1px;font-weight:800}.walk-keys i{font-style:normal;color:#65e4f4}
+@media(max-width:600px){.walk-hud{left:12px;bottom:18px;padding:13px;max-width:calc(100vw - 24px)}.walk-title{font-size:18px}.walk-subtitle{font-size:11px}}
