@@ -96,7 +96,7 @@ function buildWorld(){worldGroup=new THREE.Group();scene.add(worldGroup);makeTer
  waypointMeshes=waypoints.map(addWaypoint)}
 function setup(){return import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').then(T=>{THREE=T;renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;scene=new THREE.Scene();scene.background=new THREE.Color(0x83b5d0);scene.fog=new THREE.Fog(0x83b5d0,900,4400);camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,8000);camera.position.set(0,12,35);clock=new THREE.Clock();scene.add(new THREE.HemisphereLight(0xd6edff,0x435343,2));const sun=new THREE.DirectionalLight(0xffedce,3.1);sun.position.set(-250,450,200);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);buildWorld();plane=makeJet(selected);scene.add(plane);plane.position.set(0,8,0);createWalkaround();radarCanvas=$('radar');if(radarCanvas)radarCtx=radarCanvas.getContext('2d');resize();requestAnimationFrame(frame)}).catch(err=>{console.error(err);toast('3D ENGINE FAILED TO LOAD — CHECK INTERNET CONNECTION')})}
 function createWalkaround(){
- $('menu').hidden=true;
+ $('menu').hidden=true;plane.visible=false;
  const positions=[[-55,-70],[0,-92],[55,-70]];
  displayJets=positions.map((p,i)=>{const j=makeJet(i);j.position.set(p[0],heightAt(p[0],p[1])+1.4,p[1]);j.rotation.y=Math.PI;j.scale.setScalar(1.75);scene.add(j);return j});
  player=new THREE.Group();
@@ -131,7 +131,7 @@ function walkAround(dt){
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
  const j=displayJets[nearJet],d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d>20){toast('MOVE CLOSER TO THE AIRCRAFT');return}
- selected=nearJet;document.querySelectorAll('.jet-card').forEach(b=>b.classList.toggle('selected',Number(b.dataset.jet)===selected));
+ selected=nearJet;plane.visible=true;document.querySelectorAll('.jet-card').forEach(b=>b.classList.toggle('selected',Number(b.dataset.jet)===selected));
  if(player)player.visible=false;displayJets.forEach(o=>o.visible=false);
  mode='flight';paused=false;resetFlight();ui.menu.hidden=true;ui.pause.hidden=true;ui.hud.hidden=false;
  const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=true;
