@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id),canvas=$('flight');
 const ui={menu:$('menu'),hud:$('hud'),pause:$('pause'),speed:$('speed'),altitude:$('altitude'),craft:$('craft'),hullbar:$('hullbar'),objective:$('objective'),toast:$('toast')};
 let THREE,renderer,scene,camera,clock,plane,worldGroup,mode='walk',paused=false,selected=0,cameraMode='chase',toastTimer=0;
-let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,nearJet=-1,walkClock=0,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
+let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
 const jets=[
 {name:'F-27 NIGHTHAWK',short:'F-27 NIGHTHAWK',speed:155,accel:38,turn:1.0,color:0xcbd9df,description:'Balanced • Multirole'},
 {name:'XF-90 RAPTOR',short:'XF-90 RAPTOR',speed:215,accel:48,turn:1.28,color:0xa7b9c8,description:'Fast • Agile'},
@@ -117,17 +117,44 @@ function createWalkaround(){
 }
 function walkAround(dt){
  if(!player)return;
- const forward=!!(keys.w||keys.ArrowUp),back=!!(keys.s||keys.ArrowDown),left=!!(keys.a||keys.ArrowLeft),right=!!(keys.d||keys.ArrowRight);
- const dx=Number(right)-Number(left),dz=Number(back)-Number(forward);
- if(dx||dz){const len=Math.hypot(dx,dz)||1;playerX+=dx/len*dt*34;playerZ+=dz/len*dt*34;playerX=clamp(playerX,-125,125);playerZ=clamp(playerZ,-170,75);playerHeading=Math.atan2(dx,-dz);player.rotation.y=playerHeading;walkClock+=dt*10;}
+ const forward=Number(!!(keys.w||keys.ArrowUp))-Number(!!(keys.s||keys.ArrowDown));
+ const strafe=Number(!!(keys.d||keys.ArrowRight))-Number(!!(keys.a||keys.ArrowLeft));
+ const inputLen=Math.hypot(forward,strafe);
+ const sprint=!!(keys.Shift||keys.ShiftLeft||keys.ShiftRight);
+ const maxSpeed=sprint?29:19;
+ // Smooth acceleration and braking prevent the character from snapping around.
+ let wishX=0,wishZ=0;
+ if(inputLen>0){
+  const f=forward/inputLen,r=strafe/inputLen;
+  wishX=Math.sin(playerHeading)*f+Math.cos(playerHeading)*r;
+  wishZ=-Math.cos(playerHeading)*f+Math.sin(playerHeading)*r;
+ }
+ const targetVX=wishX*maxSpeed,targetVZ=wishZ*maxSpeed;
+ const accel=inputLen>0?68:95;
+ walkVX+=(targetVX-walkVX)*Math.min(1,accel*dt/Math.max(maxSpeed,1));
+ walkVZ+=(targetVZ-walkVZ)*Math.min(1,accel*dt/Math.max(maxSpeed,1));
+ if(inputLen>0){
+  const velLen=Math.hypot(walkVX,walkVZ)||1;
+  walkVX=walkVX/velLen*Math.min(maxSpeed,Math.hypot(walkVX,walkVZ));
+  walkVZ=walkVZ/velLen*Math.min(maxSpeed,Math.hypot(walkVX,walkVZ));
+ }
+ playerX=clamp(playerX+walkVX*dt,-125,125);
+ playerZ=clamp(playerZ+walkVZ*dt,-170,75);
+ if(Math.hypot(walkVX,walkVZ)>.8){
+  playerHeading=Math.atan2(walkVX,-walkVZ);
+  player.rotation.y=playerHeading;
+  walkClock+=dt*(sprint?15:11);
+ }
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);
- player.children.forEach((part,i)=>{if(i>=6)part.rotation.x=(dx||dz)?Math.sin(walkClock+(i%2)*Math.PI)*.28:0});
+ const moving=Math.hypot(walkVX,walkVZ)>.8;
+ player.children.forEach((part,i)=>{if(i>=6)part.rotation.x=moving?Math.sin(walkClock+(i%2)*Math.PI)*.32:0});
  nearJet=-1;let nearest=Infinity;
  displayJets.forEach((j,i)=>{const d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d<nearest){nearest=d;nearJet=i}});
- const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<20?'PRESS E TO ENTER '+jets[nearJet].name:'WASD / ARROWS TO WALK • FIND A JET';prompt.classList.toggle('ready',nearest<20)}
- const target=new THREE.Vector3(playerX,player.position.y+5.5,playerZ+11);
- camera.position.lerp(new THREE.Vector3(playerX+Math.sin(playerHeading)*9,player.position.y+8,playerZ+Math.cos(playerHeading)*13),Math.min(1,dt*3));
- camera.lookAt(target);
+ const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<13?'PRESS E TO ENTER '+jets[nearJet].name:(sprint?'SPRINTING • ':'')+'WASD / ARROWS TO MOVE • SHIFT TO RUN';prompt.classList.toggle('ready',nearest<13)}
+ // Keep the camera behind the direction of travel and ease it into position.
+ const desired=new THREE.Vector3(playerX-Math.sin(playerHeading)*11,player.position.y+7,playerZ+Math.cos(playerHeading)*15);
+ camera.position.lerp(desired,1-Math.exp(-5*dt));
+ camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.6,playerZ));
 }
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
