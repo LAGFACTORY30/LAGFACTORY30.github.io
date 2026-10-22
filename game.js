@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id),canvas=$('flight');
 const ui={menu:$('menu'),hud:$('hud'),pause:$('pause'),speed:$('speed'),altitude:$('altitude'),craft:$('craft'),hullbar:$('hullbar'),objective:$('objective'),toast:$('toast')};
 let THREE,renderer,scene,camera,clock,plane,worldGroup,mode='walk',paused=false,selected=0,cameraMode='chase',toastTimer=0;
-let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,walkParts=[],speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
+let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,walkParts=[],walkCameraMode='third',nightMode=false,flashlightOn=false,playerLight,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
 const jets=[
 {name:'F-27 NIGHTHAWK',short:'F-27 NIGHTHAWK',speed:155,accel:38,turn:1.0,color:0xcbd9df,description:'Balanced • Multirole'},
 {name:'XF-90 RAPTOR',short:'XF-90 RAPTOR',speed:215,accel:48,turn:1.28,color:0xa7b9c8,description:'Fast • Agile'},
@@ -142,7 +142,7 @@ function createWalkaround(){
  part(new THREE.BoxGeometry(.3,.12,.16),armor,0,2.39,.45);
  part(new THREE.CylinderGeometry(.025,.025,.38,8),metal,.17,2.52,.37);
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);scene.add(player);
- const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;
+ playerLight=new THREE.SpotLight(0xcceeff,0,24,Math.PI/5,.45,1.5);playerLight.position.set(0,2.8,-.25);player.add(playerLight);playerLight.target.position.set(0,1,-8);player.add(playerLight.target);\n const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;
  camera.position.set(0,12,68);camera.lookAt(0,2,0);
  $('menu').hidden=true;
 }
@@ -187,7 +187,7 @@ function walkAround(dt){
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
  const j=displayJets[nearJet],d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d>20){toast('MOVE CLOSER TO THE AIRCRAFT');return}
- selected=nearJet;plane.visible=true;document.querySelectorAll('.jet-card').forEach(b=>b.classList.toggle('selected',Number(b.dataset.jet)===selected));
+ selected=nearJet;scene.remove(plane);plane=makeJet(selected);scene.add(plane);plane.visible=true;document.querySelectorAll('.jet-card').forEach(b=>b.classList.toggle('selected',Number(b.dataset.jet)===selected));
  if(player)player.visible=false;displayJets.forEach(o=>o.visible=false);
  mode='flight';paused=false;resetFlight();ui.menu.hidden=true;ui.pause.hidden=true;ui.hud.hidden=false;
  const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=true;
@@ -242,7 +242,12 @@ function update(dt){worldTime+=dt;const spec=jets[selected],left=!!(keys.ArrowLe
 function renderHangar(){const overlay=$('cockpit-overlay');if(overlay)overlay.hidden=true;if(!plane)return;const t=clock.elapsedTime;plane.position.set(0,5,-65);plane.rotation.set(0,Math.sin(t*.18)*.03,0);camera.position.lerp(new THREE.Vector3(34,24,42),.025);camera.lookAt(0,4,-65)}
 function frame(){requestAnimationFrame(frame);if(!renderer||!scene)return;const dt=Math.min(clock.getDelta(),.04);if(mode==='flight'&&!paused)update(dt);else if(mode==='walk'){worldTime+=dt;walkAround(dt)}else if(mode==='hangar'){worldTime+=dt;renderHangar()}else if(toastTimer>0&&(toastTimer-=dt)<=0)ui.toast.hidden=true;renderer.render(scene,camera)}
 document.querySelectorAll('.jet-card').forEach(b=>b.addEventListener('click',()=>chooseJet(Number(b.dataset.jet))));$('start').addEventListener('click',takeoff);$('resume').addEventListener('click',()=>{paused=false;ui.pause.hidden=true});$('tohangar').addEventListener('click',enterHangar);
-addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[k]=true;if((k==='p'||k==='Escape')&&mode==='flight'){paused=!paused;ui.pause.hidden=!paused}if(k==='h'&&mode==='flight')enterHangar();if(k==='e')enterNearbyJet();if(k==='c'&&mode==='flight'){cameraMode=cameraMode==='chase'?'cockpit':'chase';toast(cameraMode==='cockpit'?'COCKPIT VIEW':'CHASE CAMERA')}if(k===' '&&mode==='flight'){pitch=0;roll=0;toast('FLIGHT TRIM RESET')}});
+addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[k]=true;if((k==='p'||k==='Escape')&&mode==='flight'){paused=!paused;ui.pause.hidden=!paused}if(k==='h'&&mode==='flight')enterHangar();if(k==='e')enterNearbyJet();
+if(k==='v'&&mode==='walk'){walkCameraMode=walkCameraMode==='third'?'first':'third';toast(walkCameraMode==='first'?'FIRST-PERSON VIEW':'THIRD-PERSON VIEW')}
+if(k==='f'&&mode==='walk'&&playerLight){flashlightOn=!flashlightOn;playerLight.intensity=flashlightOn?22:0;toast(flashlightOn?'PILOT LIGHT ON':'PILOT LIGHT OFF')}
+if(k==='r'&&mode==='walk'){playerX=0;playerZ=40;walkVX=0;walkVZ=0;playerHeading=0;player.rotation.y=0;walkCameraMode='third';toast('RESET TO AIRBASE START')}
+if(k==='t'&&mode==='walk'&&scene){nightMode=!nightMode;scene.background.set(nightMode?0x071321:0x83b5d0);scene.fog.color.set(nightMode?0x071321:0x83b5d0);toast(nightMode?'NIGHT ENVIRONMENT':'DAY ENVIRONMENT')}
+if(k==='c'&&mode==='flight'){cameraMode=cameraMode==='chase'?'cockpit':'chase';toast(cameraMode==='cockpit'?'COCKPIT VIEW':'CHASE CAMERA')}if(k===' '&&mode==='flight'){pitch=0;roll=0;toast('FLIGHT TRIM RESET')}});
 addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
 document.querySelectorAll('[data-control]').forEach(btn=>{const key=btn.dataset.control;const down=e=>{e.preventDefault();keys[key]=true;btn.classList.add('pressed')};const up=e=>{e.preventDefault();keys[key]=false;btn.classList.remove('pressed')};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up))});addEventListener('blur',()=>{keys={};if(mode==='flight'){paused=true;ui.pause.hidden=false}});addEventListener('resize',resize);setup();
 })();
