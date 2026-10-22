@@ -12,23 +12,60 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function toast(s){ui.toast.textContent=s;ui.toast.hidden=false;toastTimer=3}\ntry{bestScore=Number(localStorage.getItem('jetstorm-best-score')||0)}catch(e){}\nfunction saveBest(){if(missionScore>bestScore){bestScore=missionScore;try{localStorage.setItem('jetstorm-best-score',String(bestScore))}catch(e){}toast('NEW FLIGHT RECORD // '+bestScore+' PTS')}}
 function mat(color,roughness=.8,metalness=.1){return new THREE.MeshStandardMaterial({color,roughness,metalness})}
 function box(parent,x,y,z,sx,sy,sz,material){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);o.position.set(x,y,z);parent.add(o);return o}
-function makeJet(index){const spec=jets[index],g=new THREE.Group(),metal=mat(spec.color,.42,.58),dark=mat(0x202d35,.55,.45),glass=new THREE.MeshPhysicalMaterial({color:0x17485b,metalness:.7,roughness:.14,transparent:true,opacity:.82,clearcoat:1}),glow=new THREE.MeshBasicMaterial({color:0x53dfff});
- const body=new THREE.Mesh(new THREE.CylinderGeometry(.48,.7,9,20),metal);body.rotation.x=Math.PI/2;body.position.z=-.1;g.add(body);
- // Extra fuselage details: intake lips, external tanks, pylons and panel seams.
- const intakeMat=mat(0x101a21,.7,.35),panelMat=mat(0x52616a,.65,.4);
- for(const side of [-1,1]){const intake=new THREE.Mesh(new THREE.CylinderGeometry(.34,.4,.32,16),intakeMat);intake.rotation.z=Math.PI/2;intake.position.set(side*.67,.02,-1.45);g.add(intake);const lip=new THREE.Mesh(new THREE.TorusGeometry(.36,.055,8,20),panelMat);lip.rotation.y=Math.PI/2;lip.position.set(side*.82,.02,-1.45);g.add(lip);const tank=new THREE.Mesh(new THREE.CylinderGeometry(.13,.17,3.8,10),metal);tank.rotation.x=Math.PI/2;tank.position.set(side*3.1,-.12,-.65);g.add(tank);box(g,side*2.75,-.22,-.55,.18,.35,2.1,dark);for(let j=0;j<3;j++){const seam=box(g,side*(.51+j*.12),.22,-2.2+j*1.25,.012,.012,.52,panelMat);seam.rotation.z=side*.06}}
- const nose=new THREE.Mesh(new THREE.ConeGeometry(.48,3.5,16),metal);nose.rotation.x=-Math.PI/2;nose.position.z=-6.15;g.add(nose);
- box(g,0,.16,-.9,1.1,.62,4.9,metal);
- function wing(points,y,material){const sh=new THREE.Shape();sh.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)sh.lineTo(points[i][0],points[i][1]);sh.closePath();const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),material);m.rotation.x=-Math.PI/2;m.position.y=y;g.add(m)}
- wing([[-.55,-1.6],[-7,-3.6],[-7.7,-2.9],[-2.2,.8],[-.55,1.7]],-.05,metal);wing([[.55,-1.6],[7,-3.6],[7.7,-2.9],[2.2,.8],[.55,1.7]],-.05,metal);
- wing([[-.35,2.7],[-2.1,4.1],[-2.3,4.5],[-.3,4.2]],0,metal);wing([[.35,2.7],[2.1,4.1],[2.3,4.5],[.3,4.2]],0,metal);
- const f1=box(g,-1.35,.72,3.1,.18,1.45,1.9,metal);f1.rotation.z=-.18;const f2=box(g,1.35,.72,3.1,.18,1.45,1.9,metal);f2.rotation.z=.18;
- box(g,0,.48,-2.7,1.28,.18,2.8,dark);
- const canopy=new THREE.Mesh(new THREE.SphereGeometry(.75,24,16),glass);canopy.scale.set(.78,.58,1.7);canopy.position.set(0,.72,-2.7);g.add(canopy);
- const canopyFrame=mat(0x34434a,.4,.7);for(const z of [-3.8,-2.7,-1.65]){const frame=box(g,0,1.02,z,.045,.045,.05,canopyFrame);frame.rotation.z=.04}box(g,0,.55,-1.25,.95,.18,.25,dark);
- for(const side of [-1,1]){const stripe=box(g,side*2.4,.005,-1.4,1.5,.025,.18,mat(0x65e4f4,.5,.2));stripe.rotation.y=side*.18;const roundel=new THREE.Mesh(new THREE.CircleGeometry(.24,20),mat(0xdce7e9,.6,.25));roundel.rotation.x=-Math.PI/2;roundel.position.set(side*3.15,.02,-1.4);g.add(roundel)}
- for(const side of [-1,1]){const engine=new THREE.Mesh(new THREE.CylinderGeometry(.35,.43,2.1,14),dark);engine.rotation.x=Math.PI/2;engine.position.set(side*.48,.05,3.2);g.add(engine);const flame=new THREE.Mesh(new THREE.ConeGeometry(.27,1.6,12),glow);flame.rotation.x=Math.PI/2;flame.position.set(side*.48,.05,4.95);flame.name='afterburner';g.add(flame)}
- g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g}
+function makeJet(index){
+ const spec=jets[index],g=new THREE.Group();
+ const metal=mat(spec.color,.38,.62),edge=mat(0x657780,.48,.55),dark=mat(0x111c23,.62,.35),glass=new THREE.MeshPhysicalMaterial({color:0x17485b,metalness:.55,roughness:.13,transparent:true,opacity:.86,clearcoat:1}),glow=new THREE.MeshBasicMaterial({color:0x53dfff}),mark=mat(index===2?0xd5cda4:0x65e4f4,.5,.3);
+ const fuselage=new THREE.Mesh(new THREE.CylinderGeometry(.47,.62,10.8,24,1),metal);fuselage.rotation.x=Math.PI/2;fuselage.position.z=.1;g.add(fuselage);
+ const nose=new THREE.Mesh(new THREE.ConeGeometry(.47,4.1,24),metal);nose.rotation.x=-Math.PI/2;nose.position.z=-7.45;g.add(nose);
+ const tailCone=new THREE.Mesh(new THREE.ConeGeometry(.6,1.7,20),metal);tailCone.rotation.x=Math.PI/2;tailCone.position.z=5.8;g.add(tailCone);
+ function surface(points,y,material,thickness=.13){
+  const sh=new THREE.Shape();sh.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)sh.lineTo(points[i][0],points[i][1]);sh.closePath();
+  const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:thickness,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.025}),material);
+  mesh.rotation.x=-Math.PI/2;mesh.position.y=y-thickness/2;g.add(mesh);return mesh;
+ }
+ // Different planforms make the aircraft read as different classes, not recolored copies.
+ if(index===0){
+  surface([[-.48,-1.2],[-1.35,-1.2],[-6.9,-4.25],[-7.45,-3.8],[-3.0,.35],[-1.45,1.45],[-.48,1.05]],-.05,metal);
+  surface([[.48,-1.2],[1.35,-1.2],[6.9,-4.25],[7.45,-3.8],[3.0,.35],[1.45,1.45],[.48,1.05]],-.05,metal);
+ }else if(index===1){
+  surface([[-.45,-1.25],[-1.1,-1.4],[-7.5,-4.4],[-7.1,-2.2],[-2.0,1.4],[-.45,1.65]],-.04,metal);
+  surface([[.45,-1.25],[1.1,-1.4],[7.5,-4.4],[7.1,-2.2],[2.0,1.4],[.45,1.65]],-.04,metal);
+  surface([[-.3,1.9],[-2.0,3.9],[-2.25,4.5],[-.3,4.0]],.03,metal);
+  surface([[.3,1.9],[2.0,3.9],[2.25,4.5],[.3,4.0]],.03,metal);
+ }else{
+  surface([[-.55,-1.0],[-1.2,-1.1],[-6.8,-2.6],[-7.0,-2.1],[-2.3,.8],[-.6,1.0]],-.08,metal);
+  surface([[.55,-1.0],[1.2,-1.1],[6.8,-2.6],[7.0,-2.1],[2.3,.8],[.6,1.0]],-.08,metal);
+ }
+ // Horizontal stabilizers and twin vertical tails.
+ surface([[-.4,3.25],[-3.0,4.5],[-3.15,4.9],[-.35,4.35]],.05,metal);
+ surface([[.4,3.25],[3.0,4.5],[3.15,4.9],[.35,4.35]],.05,metal);
+ for(const side of [-1,1]){
+  const fin=box(g,side*(index===2?1.45:.78),.72,3.45,.16,1.65,2.0,metal);fin.rotation.z=side*.13;
+  // Raised intake shoulders, dark intake mouths, and metallic lips.
+  const intakeX=side*(index===2?1.0:.72);
+  const intake=new THREE.Mesh(new THREE.CylinderGeometry(index===2?.29:.31,index===2?.34:.38,.42,18),dark);intake.rotation.z=Math.PI/2;intake.position.set(intakeX,.1,-2.15);g.add(intake);
+  const lip=new THREE.Mesh(new THREE.TorusGeometry(index===2?.31:.34,.045,8,24),edge);lip.rotation.y=Math.PI/2;lip.position.set(intakeX+side*.22,.1,-2.15);g.add(lip);
+  const engineX=side*(index===2?1.35:.5);
+  const engine=new THREE.Mesh(new THREE.CylinderGeometry(index===2?.43:.32,index===2?.48:.39,2.7,18),dark);engine.rotation.x=Math.PI/2;engine.position.set(engineX,.18,3.1);g.add(engine);
+  const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(index===2?.39:.29,index===2?.36:.27,.35,18),edge);nozzle.rotation.x=Math.PI/2;nozzle.position.set(engineX,.18,4.52);g.add(nozzle);
+  const flame=new THREE.Mesh(new THREE.ConeGeometry(.22,1.1,12),glow);flame.rotation.x=Math.PI/2;flame.position.set(engineX,.18,5.2);flame.name='afterburner';g.add(flame);
+  // Pylons and compact external stores.
+  const pylon=box(g,side*3.0,-.22,-.45,.16,.38,1.25,dark);
+  const store=new THREE.Mesh(new THREE.CylinderGeometry(.11,.15,2.4,12),metal);store.rotation.x=Math.PI/2;store.position.set(side*3.05,-.3,-.5);g.add(store);
+  for(let j=0;j<4;j++){const line=box(g,side*(.55+j*.13),.025,-2.6+j*.92,.018,.018,.48,edge);line.rotation.z=side*.04}
+  const roundel=new THREE.Mesh(new THREE.CircleGeometry(.23,24),mark);roundel.rotation.x=-Math.PI/2;roundel.position.set(side*2.5,.035,-1.25);g.add(roundel);
+ }
+ // Long framed canopy and a visible windscreen highlight.
+ const canopy=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),glass);canopy.scale.set(.58,.48,1.72);canopy.position.set(0,.73,-3.0);g.add(canopy);
+ const canopyFrame=mat(0x35464f,.36,.7);
+ for(const z of [-4.05,-3.05,-2.0]){const frame=box(g,0,1.08,z,.055,.055,.07,canopyFrame);frame.rotation.z=.035}
+ const windscreen=new THREE.Mesh(new THREE.SphereGeometry(.58,20,12),new THREE.MeshPhysicalMaterial({color:0x6aa3b5,metalness:.35,roughness:.18,transparent:true,opacity:.42}));windscreen.scale.set(.7,.24,.43);windscreen.position.set(0,.88,-4.05);g.add(windscreen);
+ box(g,0,.34,-.75,.9,.12,2.1,dark);
+ // Small antenna, navigation lights, and belly gear doors add scale cues.
+ box(g,0,.8,1.15,.06,.22,.5,edge);
+ for(const side of [-1,1]){const light=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),new THREE.MeshBasicMaterial({color:side<0?0xff4545:0x45ff9c}));light.position.set(side*6.7,.03,-3.1);g.add(light);const gearDoor=box(g,side*.65,-.48,.2,.25,.04,1.1,dark);gearDoor.rotation.z=side*.08}
+ g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g;
+}
 function heightAt(x,z){
  if(Math.abs(x)<220&&z>-500&&z<100)return .15;
  const ridge=Math.sin(x*.0028+z*.0017)*Math.cos(z*.0022-x*.0014);
