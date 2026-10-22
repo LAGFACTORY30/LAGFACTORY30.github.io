@@ -155,9 +155,9 @@ function walkAround(dt){
  // Use the current facing direction to calculate movement, then smoothly turn toward travel.
  let wishX=0,wishZ=0;
  if(inputLen>0){
-  const f=forward/inputLen,r=strafe/inputLen;
-  wishX=Math.sin(playerHeading)*f+Math.cos(playerHeading)*r;
-  wishZ=-Math.cos(playerHeading)*f+Math.sin(playerHeading)*r;
+  // Stable camera/world-relative input; turning the model never changes the movement vector.
+  wishX=strafe/inputLen;
+  wishZ=-forward/inputLen;
  }
  const targetVX=wishX*maxSpeed,targetVZ=wishZ*maxSpeed;
  const blend=1-Math.exp(-(inputLen>0?7:11)*dt);
@@ -173,7 +173,7 @@ function walkAround(dt){
   walkClock+=dt*(sprint?12:8);
  }
  walkParts.forEach(p=>{
-  const amount=moving?(p.kind==='leg'?.48:.22):0;
+  const amount=moving?(p.kind==='leg' ? .48 : .22):0;
   p.node.rotation.x=Math.sin(walkClock+p.phase)*amount;
  });
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);
