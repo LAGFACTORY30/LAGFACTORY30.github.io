@@ -135,7 +135,13 @@ function createWalkaround(){
  player=new THREE.Group();walkParts=[];
  const cloth=mat(0x263b35,.92,0),clothLight=mat(0x405448,.88,0),black=mat(0x111a19,.84,.05),skin=mat(0xb98768,.9,0),armor=mat(0x182522,.66,.12),metal=mat(0x68736d,.45,.5),glass=new THREE.MeshStandardMaterial({color:0x172b30,metalness:.35,roughness:.22});
  const part=(geo,material,x,y,z,parent=player)=>{const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
- const capsule=(r,len,material,x,y,z,parent=player)=>part(new THREE.CapsuleGeometry(r,len,4,8),material,x,y,z,parent);
+ const capsule=(r,len,material,x,y,z,parent=player)=>{
+  // Build capsules from core Three.js meshes (CapsuleGeometry is an addon, not in THREE by default).
+  const group=new THREE.Group();group.position.set(x,y,z);parent.add(group);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,12,1),material);body.castShadow=true;body.receiveShadow=true;group.add(body);
+  for(const end of [-1,1]){const cap=new THREE.Mesh(new THREE.SphereGeometry(r,12,8),material);cap.position.y=end*len/2;cap.castShadow=true;cap.receiveShadow=true;group.add(cap)}
+  return group;
+ };
  // Torso and layered tactical vest
  capsule(.49,.9,cloth,0,2.05,0);
  part(new THREE.BoxGeometry(.92,.82,.42),armor,0,2.12,-.08);
