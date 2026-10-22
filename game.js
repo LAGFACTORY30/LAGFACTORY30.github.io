@@ -57,6 +57,39 @@ function makeJet(index){
   for(let j=0;j<4;j++){const line=box(g,side*(.55+j*.13),.025,-2.6+j*.92,.018,.018,.48,edge);line.rotation.z=side*.04}
   const roundel=new THREE.Mesh(new THREE.CircleGeometry(.23,24),mark);roundel.rotation.x=-Math.PI/2;roundel.position.set(side*2.5,.035,-1.25);g.add(roundel);
  }
+ // Finer airframe details: layered wing surfaces, control hinges, cockpit rails and engine hardware.
+ const panel=mat(0x7f8c91,.5,.55),rubber=mat(0x101519,.9,.05),tireHub=mat(0x9ca8ad,.38,.7);
+ // Thin swept leading-edge strips and trailing flaps make the wings read as built metal.
+ const stripeMat=mat(index===2?0xbab39c:0x35464f,.48,.58);
+ for(const side of [-1,1]){
+  const stripe=box(g,side*3.35,-.015,-2.45,.045,.035,3.2,stripeMat);stripe.rotation.y=side*.16;
+  const flap=box(g,side*3.55,-.12,.05,2.35,.08,.52,panel);flap.rotation.y=side*.12;
+  const hinge=box(g,side*3.55,-.075,-.22,2.3,.035,.06,dark);hinge.rotation.y=side*.12;
+  // Landing gear strut, fork and twin dark rubber wheels.
+  const strut=new THREE.Mesh(new THREE.CylinderGeometry(.055,.075,1.15,10),tireHub);strut.position.set(side*.72,-.82,.1);g.add(strut);
+  const fork=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.45,8),edge);fork.position.set(side*.72,-1.3,-.12);g.add(fork);
+  for(const wheelSide of [-1,1]){
+   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.13,16),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(side*.72+wheelSide*.09,-1.42,-.13);g.add(wheel);
+   const hub=new THREE.Mesh(new THREE.CylinderGeometry(.095,.095,.145,12),tireHub);hub.rotation.z=Math.PI/2;hub.position.copy(wheel.position);hub.position.x+=wheelSide*.012;g.add(hub);
+  }
+  // Small pitot probe and wingtip navigation lamps.
+  const nav=new THREE.Mesh(new THREE.SphereGeometry(.075,8,6),new THREE.MeshBasicMaterial({color:side<0?0xff3535:0x35ff92}));nav.position.set(side*7.15,.015,-3.2);g.add(nav);
+  const probe=new THREE.Mesh(new THREE.CylinderGeometry(.018,.045,1.05,8),edge);probe.rotation.x=Math.PI/2;probe.position.set(side*.5,.12,-8.35);g.add(probe);
+ }
+ // Fine canopy rails and a raised cockpit sill.
+ const sill=box(g,0,.72,-3.1,1.28,.09,3.1,canopyFrame);
+ for(const side of [-1,1]){
+  const rail=box(g,side*.58,.77,-3.05,.045,.06,2.65,edge);rail.rotation.z=side*.08;
+ }
+ // Aft airbrake panel and tail warning stripes.
+ const spine=box(g,0,.48,2.2,.24,.12,2.1,panel);spine.rotation.x=-.04;
+ for(let i=0;i<5;i++){const vent=box(g,0,.52,2.35+i*.2,.22,.025,.045,dark);vent.rotation.x=-.04}
+ // Engine nozzle inner rings give the exhaust a layered metallic appearance.
+ for(const side of [-1,1]){
+  const x=side*(index===2?1.35:.5);
+  const inner=new THREE.Mesh(new THREE.CylinderGeometry(index===2?.27:.19,index===2?.25:.18,.18,18),rubber);inner.rotation.x=Math.PI/2;inner.position.set(x,.18,4.7);g.add(inner);
+  for(let n=0;n<8;n++){const a=n*Math.PI/4;const blade=box(g,x+Math.cos(a)*.21,.18+Math.sin(a)*.21,4.59,.035,.035,.12,edge);blade.rotation.z=a}
+ }
  // Long framed canopy and a visible windscreen highlight.
  const canopy=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),glass);canopy.scale.set(.58,.48,1.72);canopy.position.set(0,.73,-3.0);g.add(canopy);
  const canopyFrame=mat(0x35464f,.36,.7);
