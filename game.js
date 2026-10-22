@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id),canvas=$('flight');
 const ui={menu:$('menu'),hud:$('hud'),pause:$('pause'),speed:$('speed'),altitude:$('altitude'),craft:$('craft'),hullbar:$('hullbar'),objective:$('objective'),toast:$('toast')};
 let THREE,renderer,scene,camera,clock,plane,worldGroup,mode='walk',paused=false,selected=0,cameraMode='chase',toastTimer=0;
-let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
+let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,walkParts=[],speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0;
 const jets=[
 {name:'F-27 NIGHTHAWK',short:'F-27 NIGHTHAWK',speed:155,accel:38,turn:1.0,color:0xcbd9df,description:'Balanced • Multirole'},
 {name:'XF-90 RAPTOR',short:'XF-90 RAPTOR',speed:215,accel:48,turn:1.28,color:0xa7b9c8,description:'Fast • Agile'},
@@ -99,17 +99,48 @@ function createWalkaround(){
  plane.visible=false;
  const positions=[[-55,-70],[0,-92],[55,-70]];
  displayJets=positions.map((p,i)=>{const j=makeJet(i);j.position.set(p[0],heightAt(p[0],p[1])+1.4,p[1]);j.rotation.y=Math.PI;j.scale.setScalar(1.75);scene.add(j);return j});
- player=new THREE.Group();
- const skin=mat(0xd2a17b,.85,0),uniform=mat(0x243b4b,.9,0),boots=mat(0x111a20,.85,0),visor=new THREE.MeshStandardMaterial({color:0x17242c,metalness:.25,roughness:.25});
- const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.65,1.1,4,8),uniform);torso.position.y=2.15;player.add(torso);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.42,12,10),skin);head.position.y=3.25;player.add(head);
- const helmet=new THREE.Mesh(new THREE.SphereGeometry(.45,12,8,0,Math.PI*2,0,Math.PI*.55),boots);helmet.position.y=3.38;player.add(helmet);
- const face=new THREE.Mesh(new THREE.BoxGeometry(.48,.16,.06),visor);face.position.set(0,3.18,-.37);player.add(face);
- for(const side of [-1,1]){
-  const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.19,.8,3,6),uniform);arm.position.set(side*.78,2.15,0);arm.rotation.z=side*-.12;player.add(arm);
-  const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.24,.78,3,6),uniform);leg.position.set(side*.28,.92,0);player.add(leg);
-  const boot=new THREE.Mesh(new THREE.BoxGeometry(.42,.2,.65),boots);boot.position.set(side*.28,.35,-.12);player.add(boot);
+ player=new THREE.Group();walkParts=[];
+ const cloth=mat(0x263b35,.92,0),clothLight=mat(0x405448,.88,0),black=mat(0x111a19,.84,.05),skin=mat(0xb98768,.9,0),armor=mat(0x182522,.66,.12),metal=mat(0x68736d,.45,.5),glass=new THREE.MeshStandardMaterial({color:0x172b30,metalness:.35,roughness:.22});
+ const part=(geo,material,x,y,z,parent=player)=>{const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
+ const capsule=(r,len,material,x,y,z,parent=player)=>part(new THREE.CapsuleGeometry(r,len,4,8),material,x,y,z,parent);
+ // Torso and layered tactical vest
+ capsule(.49,.9,cloth,0,2.05,0);
+ part(new THREE.BoxGeometry(.92,.82,.42),armor,0,2.12,-.08);
+ part(new THREE.BoxGeometry(.76,.12,.45),clothLight,0,2.55,-.08);
+ part(new THREE.BoxGeometry(.84,.13,.44),black,0,1.72,-.08);
+ for(const x of [-.27,0,.27]){
+  part(new THREE.BoxGeometry(.19,.25,.12),clothLight,x,2.05,-.32);
+  part(new THREE.BoxGeometry(.17,.17,.13),armor,x,1.82,-.32);
  }
+ // Shoulders, arm pivots, forearms, gloves
+ for(const side of [-1,1]){
+  const shoulder=new THREE.Group();shoulder.position.set(side*.56,2.38,0);player.add(shoulder);walkParts.push({node:shoulder,phase:side===-1?0:Math.PI,kind:'arm'});
+  part(new THREE.SphereGeometry(.25,10,8),clothLight,0,0,0,shoulder);
+  capsule(.17,.42,cloth,0,-.32,0,shoulder);
+  part(new THREE.SphereGeometry(.18,10,8),armor,0,-.48,-.02,shoulder);
+  capsule(.135,.36,clothLight,0,-.72,-.015,shoulder);
+  part(new THREE.SphereGeometry(.14,10,8),black,0,-.96,-.02,shoulder);
+  const leg=new THREE.Group();leg.position.set(side*.25,1.48,0);player.add(leg);walkParts.push({node:leg,phase:side===-1?Math.PI:0,kind:'leg'});
+  capsule(.22,.48,clothLight,0,-.28,0,leg);
+  part(new THREE.BoxGeometry(.39,.2,.29),armor,0,-.48,-.01,leg);
+  capsule(.16,.38,cloth,0,-.68,0,leg);
+  part(new THREE.BoxGeometry(.34,.18,.48),black,0,-.91,-.09,leg);
+  part(new THREE.BoxGeometry(.22,.11,.12),metal,0,-.91,-.32,leg);
+ }
+ // Neck, head, helmet, goggles and headset
+ capsule(.14,.12,skin,0,2.72,0);
+ part(new THREE.SphereGeometry(.3,16,12),skin,0,3.02,-.015);
+ part(new THREE.SphereGeometry(.33,16,10,0,Math.PI*2,0,Math.PI*.62),clothLight,0,3.14,.015);
+ part(new THREE.CylinderGeometry(.34,.34,.07,16),black,0,3.08,0);
+ part(new THREE.BoxGeometry(.42,.13,.1),glass,0,3.02,-.265);
+ for(const side of [-1,1]){
+  part(new THREE.CylinderGeometry(.09,.09,.1,10),armor,side*.3,2.98,0);
+  part(new THREE.BoxGeometry(.12,.18,.08),clothLight,side*.31,2.98,-.02);
+ }
+ // Small radio and pack on the back
+ part(new THREE.BoxGeometry(.38,.54,.24),cloth,0,2.12,.31);
+ part(new THREE.BoxGeometry(.3,.12,.16),armor,0,2.39,.45);
+ part(new THREE.CylinderGeometry(.025,.025,.38,8),metal,.17,2.52,.37);
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);scene.add(player);
  const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;
  camera.position.set(0,12,68);camera.lookAt(0,2,0);
@@ -119,10 +150,9 @@ function walkAround(dt){
  if(!player)return;
  const forward=Number(!!(keys.w||keys.ArrowUp))-Number(!!(keys.s||keys.ArrowDown));
  const strafe=Number(!!(keys.d||keys.ArrowRight))-Number(!!(keys.a||keys.ArrowLeft));
- const inputLen=Math.hypot(forward,strafe);
- const sprint=!!(keys.Shift||keys.ShiftLeft||keys.ShiftRight);
- const maxSpeed=sprint?29:19;
- // Smooth acceleration and braking prevent the character from snapping around.
+ const inputLen=Math.hypot(forward,strafe),sprint=!!keys.Shift;
+ const maxSpeed=sprint?25:13.5;
+ // Use the current facing direction to calculate movement, then smoothly turn toward travel.
  let wishX=0,wishZ=0;
  if(inputLen>0){
   const f=forward/inputLen,r=strafe/inputLen;
@@ -130,31 +160,29 @@ function walkAround(dt){
   wishZ=-Math.cos(playerHeading)*f+Math.sin(playerHeading)*r;
  }
  const targetVX=wishX*maxSpeed,targetVZ=wishZ*maxSpeed;
- const accel=inputLen>0?68:95;
- walkVX+=(targetVX-walkVX)*Math.min(1,accel*dt/Math.max(maxSpeed,1));
- walkVZ+=(targetVZ-walkVZ)*Math.min(1,accel*dt/Math.max(maxSpeed,1));
- if(inputLen>0){
-  const velLen=Math.hypot(walkVX,walkVZ)||1;
-  walkVX=walkVX/velLen*Math.min(maxSpeed,Math.hypot(walkVX,walkVZ));
-  walkVZ=walkVZ/velLen*Math.min(maxSpeed,Math.hypot(walkVX,walkVZ));
+ const blend=1-Math.exp(-(inputLen>0?7:11)*dt);
+ walkVX+=(targetVX-walkVX)*blend;walkVZ+=(targetVZ-walkVZ)*blend;
+ const v=Math.hypot(walkVX,walkVZ);
+ if(v>maxSpeed){walkVX*=maxSpeed/v;walkVZ*=maxSpeed/v}
+ playerX=clamp(playerX+walkVX*dt,-125,125);playerZ=clamp(playerZ+walkVZ*dt,-170,75);
+ const moving=Math.hypot(walkVX,walkVZ)>0.5;
+ if(moving){
+  const desiredHeading=Math.atan2(walkVX,-walkVZ);
+  let delta=((desiredHeading-playerHeading+Math.PI*3)%(Math.PI*2))-Math.PI;
+  playerHeading+=delta*(1-Math.exp(-9*dt));player.rotation.y=playerHeading;
+  walkClock+=dt*(sprint?12:8);
  }
- playerX=clamp(playerX+walkVX*dt,-125,125);
- playerZ=clamp(playerZ+walkVZ*dt,-170,75);
- if(Math.hypot(walkVX,walkVZ)>.8){
-  playerHeading=Math.atan2(walkVX,-walkVZ);
-  player.rotation.y=playerHeading;
-  walkClock+=dt*(sprint?15:11);
- }
+ walkParts.forEach(p=>{
+  const amount=moving?(p.kind==='leg'?.48:.22):0;
+  p.node.rotation.x=Math.sin(walkClock+p.phase)*amount;
+ });
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);
- const moving=Math.hypot(walkVX,walkVZ)>.8;
- player.children.forEach((part,i)=>{if(i>=6)part.rotation.x=moving?Math.sin(walkClock+(i%2)*Math.PI)*.32:0});
  nearJet=-1;let nearest=Infinity;
  displayJets.forEach((j,i)=>{const d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d<nearest){nearest=d;nearJet=i}});
- const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<13?'PRESS E TO ENTER '+jets[nearJet].name:(sprint?'SPRINTING • ':'')+'WASD / ARROWS TO MOVE • SHIFT TO RUN';prompt.classList.toggle('ready',nearest<13)}
- // Keep the camera behind the direction of travel and ease it into position.
- const desired=new THREE.Vector3(playerX-Math.sin(playerHeading)*11,player.position.y+7,playerZ+Math.cos(playerHeading)*15);
- camera.position.lerp(desired,1-Math.exp(-5*dt));
- camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.6,playerZ));
+ const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<13?'PRESS E TO ENTER '+jets[nearJet].name:(sprint?'RUNNING • ':'')+'WASD / ARROWS TO MOVE • SHIFT TO RUN';prompt.classList.toggle('ready',nearest<13)}
+ const desiredCamera=new THREE.Vector3(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
+ camera.position.lerp(desiredCamera,1-Math.exp(-4.5*dt));
+ camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.1,playerZ));
 }
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
