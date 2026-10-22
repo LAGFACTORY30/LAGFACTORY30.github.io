@@ -142,7 +142,8 @@ function createWalkaround(){
  part(new THREE.BoxGeometry(.3,.12,.16),armor,0,2.39,.45);
  part(new THREE.CylinderGeometry(.025,.025,.38,8),metal,.17,2.52,.37);
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);scene.add(player);
- playerLight=new THREE.SpotLight(0xcceeff,0,24,Math.PI/5,.45,1.5);playerLight.position.set(0,2.8,-.25);player.add(playerLight);playerLight.target.position.set(0,1,-8);player.add(playerLight.target);\n const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;
+ playerLight=new THREE.SpotLight(0xcceeff,0,24,Math.PI/5,.45,1.5);playerLight.position.set(0,2.8,-.25);player.add(playerLight);playerLight.target.position.set(0,1,-8);player.add(playerLight.target);
+ const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;
  camera.position.set(0,12,68);camera.lookAt(0,2,0);
  $('menu').hidden=true;
 }
