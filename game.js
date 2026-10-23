@@ -239,8 +239,11 @@ function walkAround(dt){
  // Hide the full character mesh in first-person so the camera never sits inside the head/body.
  player.visible=!firstPerson;
  if(firstPerson){
-  camera.position.set(playerX+Math.sin(playerHeading)*.48,player.position.y+2.55,playerZ-Math.cos(playerHeading)*.48);
-  camera.lookAt(new THREE.Vector3(playerX+Math.sin(playerHeading)*20,player.position.y+2.5,playerZ-Math.cos(playerHeading)*20));
+  // Put the camera just in front of the face, not inside the head mesh.
+  const eyeX=playerX+Math.sin(playerHeading)*.72;
+  const eyeZ=playerZ-Math.cos(playerHeading)*.72;
+  camera.position.set(eyeX,player.position.y+2.48,eyeZ);
+  camera.lookAt(new THREE.Vector3(eyeX+Math.sin(playerHeading)*24,player.position.y+2.45,eyeZ-Math.cos(playerHeading)*24));
  }else{
   camera.position.set(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
   camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.1,playerZ));
