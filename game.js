@@ -235,9 +235,14 @@ function walkAround(dt){
  nearJet=-1;let nearest=Infinity;
  displayJets.forEach((j,i)=>{const d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d<nearest){nearest=d;nearJet=i}});
  const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<13?'PRESS E TO ENTER '+jets[nearJet].name:(sprint?'RUNNING • ':'')+'WASD / ARROWS TO MOVE • SHIFT TO RUN';prompt.classList.toggle('ready',nearest<13)}
- const desiredCamera=new THREE.Vector3(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
- camera.position.lerp(desiredCamera,1-Math.exp(-4.5*dt));
- camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.1,playerZ));
+ const firstPerson=walkCameraMode==='first';
+ // First-person camera sits at eye height and looks ahead along the character's facing direction.
+ const desiredCamera=firstPerson
+  ? new THREE.Vector3(playerX+Math.sin(playerHeading)*.22,player.position.y+2.72,playerZ-Math.cos(playerHeading)*.22)
+  : new THREE.Vector3(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
+ camera.position.lerp(desiredCamera,1-Math.exp(-(firstPerson?16:4.5)*dt));
+ const lookDistance=firstPerson?18:1;
+ camera.lookAt(new THREE.Vector3(playerX+Math.sin(playerHeading)*lookDistance,player.position.y+(firstPerson?2.68:2.1),playerZ-Math.cos(playerHeading)*lookDistance));
 }
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
