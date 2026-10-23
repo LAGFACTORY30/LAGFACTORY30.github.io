@@ -16,6 +16,8 @@ function mat(color,roughness=.8,metalness=.1){return new THREE.MeshStandardMater
 function box(parent,x,y,z,sx,sy,sz,material){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);o.position.set(x,y,z);parent.add(o);return o}
 function makeJet(index){
  const spec=jets[index],g=new THREE.Group();
+ // Compatibility alias for older cached aircraft-detail code paths.
+ const canopyFrame=mat(0x35464f,.36,.7);
  const metal=mat(spec.color,.38,.62),edge=mat(0x657780,.48,.55),dark=mat(0x111c23,.62,.35),glass=new THREE.MeshPhysicalMaterial({color:0x17485b,metalness:.55,roughness:.13,transparent:true,opacity:.86,clearcoat:1}),glow=new THREE.MeshBasicMaterial({color:0x53dfff}),mark=mat(index===2?0xd5cda4:0x65e4f4,.5,.3);
  const fuselage=new THREE.Mesh(new THREE.CylinderGeometry(.47,.62,10.8,24,1),metal);fuselage.rotation.x=Math.PI/2;fuselage.position.z=.1;g.add(fuselage);
  const nose=new THREE.Mesh(new THREE.ConeGeometry(.47,4.1,24),metal);nose.rotation.x=-Math.PI/2;nose.position.z=-7.45;g.add(nose);
