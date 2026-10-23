@@ -236,13 +236,15 @@ function walkAround(dt){
  displayJets.forEach((j,i)=>{const d=Math.hypot(playerX-j.position.x,playerZ-j.position.z);if(d<nearest){nearest=d;nearJet=i}});
  const prompt=$('walk-prompt');if(prompt){prompt.textContent=nearest<13?'PRESS E TO ENTER '+jets[nearJet].name:(sprint?'RUNNING • ':'')+'WASD / ARROWS TO MOVE • SHIFT TO RUN';prompt.classList.toggle('ready',nearest<13)}
  const firstPerson=walkCameraMode==='first';
- // First-person camera sits at eye height and looks ahead along the character's facing direction.
- const desiredCamera=firstPerson
-  ? new THREE.Vector3(playerX+Math.sin(playerHeading)*.22,player.position.y+2.72,playerZ-Math.cos(playerHeading)*.22)
-  : new THREE.Vector3(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
- camera.position.lerp(desiredCamera,1-Math.exp(-(firstPerson?16:4.5)*dt));
- const lookDistance=firstPerson?18:1;
- camera.lookAt(new THREE.Vector3(playerX+Math.sin(playerHeading)*lookDistance,player.position.y+(firstPerson?2.68:2.1),playerZ-Math.cos(playerHeading)*lookDistance));
+ // Hide the full character mesh in first-person so the camera never sits inside the head/body.
+ player.visible=!firstPerson;
+ if(firstPerson){
+  camera.position.set(playerX+Math.sin(playerHeading)*.48,player.position.y+2.55,playerZ-Math.cos(playerHeading)*.48);
+  camera.lookAt(new THREE.Vector3(playerX+Math.sin(playerHeading)*20,player.position.y+2.5,playerZ-Math.cos(playerHeading)*20));
+ }else{
+  camera.position.set(playerX-Math.sin(playerHeading)*9,player.position.y+5.2,playerZ+Math.cos(playerHeading)*12);
+  camera.lookAt(new THREE.Vector3(playerX,player.position.y+2.1,playerZ));
+ }
 }
 function enterNearbyJet(){
  if(mode!=='walk'||nearJet<0||!player)return;
@@ -359,7 +361,7 @@ document.querySelectorAll('.jet-card').forEach(b=>b.addEventListener('click',()=
 addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[k]=true;if((k==='p'||k==='Escape')&&mode==='flight'){paused=!paused;ui.pause.hidden=!paused}if(k==='h'&&mode==='flight')enterHangar();if(k==='e')enterNearbyJet();
 if(k==='v'&&mode==='walk'){walkCameraMode=walkCameraMode==='third'?'first':'third';toast(walkCameraMode==='first'?'FIRST-PERSON VIEW':'THIRD-PERSON VIEW')}
 if(k==='f'&&mode==='walk'&&playerLight){flashlightOn=!flashlightOn;playerLight.intensity=flashlightOn?22:0;toast(flashlightOn?'PILOT LIGHT ON':'PILOT LIGHT OFF')}
-if(k==='r'&&mode==='walk'){playerX=0;playerZ=40;walkVX=0;walkVZ=0;playerHeading=0;player.rotation.y=0;walkCameraMode='third';toast('RESET TO AIRBASE START')}
+if(k==='r'&&mode==='walk'){playerX=0;playerZ=40;walkVX=0;walkVZ=0;playerHeading=0;player.rotation.y=0;walkCameraMode='first';toast('RESET TO AIRBASE START')}
 if(k==='t'&&mode==='walk'&&scene){nightMode=!nightMode;scene.background.set(nightMode?0x071321:0x83b5d0);scene.fog.color.set(nightMode?0x071321:0x83b5d0);toast(nightMode?'NIGHT ENVIRONMENT':'DAY ENVIRONMENT')}
 if(k==='r'&&crashed){crashed=false;crashTimer=0;const banner=$('crash-overlay');if(banner)banner.hidden=true;resetFlight();toast('AIRCRAFT RESET // READY FOR TAKEOFF')}if(k==='c'&&mode==='flight'&&!crashed){cameraMode=cameraMode==='chase'?'cockpit':'chase';toast(cameraMode==='cockpit'?'COCKPIT VIEW':'CHASE CAMERA')}if(k===' '&&mode==='flight'&&!crashed){pitch=0;roll=0;toast('FLIGHT TRIM RESET')}});
 addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
