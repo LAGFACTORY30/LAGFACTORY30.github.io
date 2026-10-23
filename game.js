@@ -59,7 +59,6 @@ function makeJet(index){
  }
  // Finer airframe details: layered wing surfaces, control hinges, cockpit rails and engine hardware.
  const panel=mat(0x7f8c91,.5,.55),rubber=mat(0x101519,.9,.05),tireHub=mat(0x9ca8ad,.38,.7);
- const canopyFrame=mat(0x35464f,.36,.7);
  // Thin swept leading-edge strips and trailing flaps make the wings read as built metal.
  const stripeMat=mat(index===2?0xbab39c:0x35464f,.48,.58);
  for(const side of [-1,1]){
@@ -78,7 +77,7 @@ function makeJet(index){
   const probe=new THREE.Mesh(new THREE.CylinderGeometry(.018,.045,1.05,8),edge);probe.rotation.x=Math.PI/2;probe.position.set(side*.5,.12,-8.35);g.add(probe);
  }
  // Fine canopy rails and a raised cockpit sill.
- const sill=box(g,0,.72,-3.1,1.28,.09,3.1,canopyFrame);
+ const sill=box(g,0,.72,-3.1,1.28,.09,3.1,edge);
  for(const side of [-1,1]){
   const rail=box(g,side*.58,.77,-3.05,.045,.06,2.65,edge);rail.rotation.z=side*.08;
  }
