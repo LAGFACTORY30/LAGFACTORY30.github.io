@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id),canvas=$('flight');
 const ui={menu:$('menu'),hud:$('hud'),pause:$('pause'),speed:$('speed'),altitude:$('altitude'),craft:$('craft'),hullbar:$('hullbar'),objective:$('objective'),toast:$('toast')};
 let THREE,renderer,scene,camera,clock,plane,worldGroup,mode='walk',paused=false,selected=0,cameraMode='chase',toastTimer=0;
-let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,walkParts=[],walkCameraMode='third',nightMode=false,flashlightOn=false,playerLight,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0,crashed=false,crashTimer=0,crashVelocity=null,crashSpin=null,crashReason='';
+let keys={},displayJets=[],player,playerHeading=0,playerX=0,playerZ=40,walkVX=0,walkVZ=0,nearJet=-1,walkClock=0,walkParts=[],walkCameraMode='third',nightMode=false,flashlightOn=false,playerLight,speed=0,altitude=12,yaw=0,pitch=0,roll=0,pitchRate=0,worldTime=0,clouds=[],terrain,radarCtx,radarCanvas,missionIndex=0,flightDistance=0,heading=0,groundSpeed=0,verticalVelocity=1.8,stallWarning=false,gForce=1,missionScore=0,flightSeconds=0,missionComplete=false,bestScore=0,crashed=false,crashTimer=0,crashVelocity=null,crashSpin=null,crashReason='',crashDebris=[],crashSmoke=[];
 const jets=[
 {name:'F-27 NIGHTHAWK',short:'F-27 NIGHTHAWK',speed:155,accel:38,turn:1.0,color:0xcbd9df,description:'Balanced • Multirole'},
 {name:'XF-90 RAPTOR',short:'XF-90 RAPTOR',speed:215,accel:48,turn:1.28,color:0xa7b9c8,description:'Fast • Agile'},
@@ -126,6 +126,17 @@ function buildWorld(){worldGroup=new THREE.Group();scene.add(worldGroup);makeTer
  // A coastal town and industrial district give scale from the air
  for(let i=0;i<210;i++){const x=250+(Math.random()-.5)*620,z=-350-Math.random()*750,y=heightAt(x,z);if(y<0)continue;const h=8+Math.random()*35,w=8+Math.random()*18;const b=box(worldGroup,x,y+h/2,z,w,h,w,mat([0x75858a,0x9a9d96,0x6e777d,0xb3b2a5][i%4],.8,.12));if(i%5===0){const light=new THREE.Mesh(new THREE.BoxGeometry(w*.6,.4,.4),new THREE.MeshBasicMaterial({color:0x83d8e8}));light.position.set(x,y+h*.6,z-w/2-.2);worldGroup.add(light)}}
  for(let i=0;i<55;i++)addCloud((Math.random()-.5)*10000,120+Math.random()*340,700-Math.random()*8000);
+ // Expand the airbase with taxiway markings, apron pads and runway edge lighting.
+ for(let i=0;i<18;i++){
+  const z=-30-i*18;
+  for(const side of [-1,1]){
+   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.42,8,6),new THREE.MeshBasicMaterial({color:side<0?0x55ddff:0xffcc88}));
+   lamp.position.set(side*34,.45,z);worldGroup.add(lamp);
+   const pad=box(worldGroup,side*48,.04,z,15,.08,12,mat(0x4b5557,.9,.05));pad.position.y=heightAt(side*48,z)+.04;
+   if(i%3===0){const stripe=box(worldGroup,side*48,pad.position.y+.06,z,11,.025,.18,mat(0xd0d5d0,.8,.05))}
+  }
+ }
+ for(let i=0;i<10;i++){const x=-105+i*23;const beacon=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,5,8),mat(0x4a565c,.65,.45));beacon.position.set(x,heightAt(x,-185)+2.5,-185);worldGroup.add(beacon);const light=new THREE.Mesh(new THREE.SphereGeometry(.38,8,6),new THREE.MeshBasicMaterial({color:0x5be5ff}));light.position.set(x,heightAt(x,-185)+5.1,-185);worldGroup.add(light)}
  waypointMeshes=waypoints.map(addWaypoint)}
 function setup(){return import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').then(T=>{THREE=T;renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;scene=new THREE.Scene();scene.background=new THREE.Color(0x83b5d0);scene.fog=new THREE.Fog(0x83b5d0,900,4400);camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,8000);camera.position.set(0,12,35);clock=new THREE.Clock();scene.add(new THREE.HemisphereLight(0xd6edff,0x435343,2));const sun=new THREE.DirectionalLight(0xffedce,3.1);sun.position.set(-250,450,200);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);buildWorld();plane=makeJet(selected);scene.add(plane);plane.position.set(0,8,0);createWalkaround();mode='walk';plane.visible=false;player.visible=true;displayJets.forEach(o=>o.visible=true);const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;const menuUi=$('menu');if(menuUi)menuUi.hidden=true;radarCanvas=$('radar');if(radarCanvas)radarCtx=radarCanvas.getContext('2d');resize();requestAnimationFrame(frame)}).catch(err=>{console.error('JETSTORM startup error:',err);const menu=$('menu');if(menu)menu.hidden=false;const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=true;mode='hangar';if(renderer&&scene&&camera){try{renderer.render(scene,camera);requestAnimationFrame(frame)}catch(renderErr){console.error(renderErr)}}const msg=$('toast');if(msg){msg.textContent='STARTUP ERROR: '+(err&&err.message?err.message:String(err));msg.hidden=false}})}
 function createWalkaround(){
@@ -213,8 +224,10 @@ function walkAround(dt){
   walkClock+=dt*(sprint?12:8);
  }
  walkParts.forEach(p=>{
-  const amount=moving?(p.kind==='leg' ? .48 : .22):0;
-  p.node.rotation.x=Math.sin(walkClock+p.phase)*amount;
+  const swing=moving?Math.sin(walkClock+p.phase):0;
+  const amount=moving?(p.kind==='leg'?.58:p.kind==='arm'?.42:.18):0;
+  p.node.rotation.x=swing*amount;
+  if(p.kind==='arm')p.node.rotation.z=(moving?Math.sin(walkClock+p.phase)*.08:0);
  });
  player.position.set(playerX,heightAt(playerX,playerZ),playerZ);
  nearJet=-1;let nearest=Infinity;
@@ -239,9 +252,28 @@ function chooseJet(n){selected=n;document.querySelectorAll('.jet-card').forEach(
 function takeoff(){if(player&&displayJets.length){mode='walk';paused=false;plane.visible=false;player.visible=true;displayJets.forEach(o=>o.visible=true);ui.menu.hidden=true;ui.pause.hidden=true;ui.hud.hidden=true;const walkUi=$('walk-hud');if(walkUi)walkUi.hidden=false;toast('AIRBASE FREE ROAM // FIND A JET AND PRESS E');return}mode='flight';paused=false;resetFlight();ui.menu.hidden=true;ui.pause.hidden=true;ui.hud.hidden=false;toast('TAXI CLEARANCE // TAKEOFF');}
 function enterHangar(){mode='hangar';paused=false;ui.menu.hidden=false;ui.pause.hidden=true;ui.hud.hidden=true;if(plane){plane.position.set(0,8,0);plane.rotation.set(0,0,0)}speed=0}
 function drawRadar(){if(!radarCtx||!radarCanvas||!plane)return;const w=radarCanvas.width,h=radarCanvas.height,cx=w/2,cy=h/2,scale=.055;radarCtx.clearRect(0,0,w,h);radarCtx.fillStyle='rgba(4,18,27,.9)';radarCtx.fillRect(0,0,w,h);radarCtx.strokeStyle='rgba(101,228,244,.24)';radarCtx.lineWidth=1;for(let r=25;r<Math.min(w,h)/2;r+=25){radarCtx.beginPath();radarCtx.arc(cx,cy,r,0,Math.PI*2);radarCtx.stroke()}radarCtx.beginPath();radarCtx.moveTo(cx,0);radarCtx.lineTo(cx,h);radarCtx.moveTo(0,cy);radarCtx.lineTo(w,cy);radarCtx.stroke();radarCtx.save();radarCtx.translate(cx,cy);radarCtx.rotate(-yaw);radarCtx.fillStyle='#65e4f4';radarCtx.beginPath();radarCtx.moveTo(0,-8);radarCtx.lineTo(5,6);radarCtx.lineTo(0,3);radarCtx.lineTo(-5,6);radarCtx.closePath();radarCtx.fill();radarCtx.restore();for(const p of waypoints){const dx=(p.x-plane.position.x)*scale,dz=(p.z-plane.position.z)*scale;if(Math.abs(dx)<cx&&Math.abs(dz)<cy){radarCtx.fillStyle='#f2d58a';radarCtx.beginPath();radarCtx.arc(cx+dx,cy+dz,3,0,Math.PI*2);radarCtx.fill()}}}
+function spawnCrashEffects(){
+ crashDebris=[];crashSmoke=[];
+ const metalMat=new THREE.MeshStandardMaterial({color:0x667781,metalness:.72,roughness:.38});
+ const darkMat=new THREE.MeshStandardMaterial({color:0x252d32,metalness:.4,roughness:.65});
+ // Toss a few visible airframe fragments from the impact point.
+ for(let i=0;i<12;i++){
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(.25+Math.random()*.8,.12+Math.random()*.35,.3+Math.random()*.8),i%3?metalMat:darkMat);
+  mesh.position.copy(plane.position);mesh.position.x+=(Math.random()-.5)*4;mesh.position.y+=Math.random()*2;mesh.position.z+=(Math.random()-.5)*4;
+  mesh.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);scene.add(mesh);
+  crashDebris.push({mesh,velocity:new THREE.Vector3((Math.random()-.5)*speed*.65,Math.random()*speed*.25+4,(Math.random()-.5)*speed*.65),spin:new THREE.Vector3(Math.random()*7,Math.random()*7,Math.random()*7),life:8+Math.random()*5});
+ }
+ // Dark smoke puffs grow and rise above the wreck.
+ for(let i=0;i<18;i++){
+  const puff=new THREE.Mesh(new THREE.SphereGeometry(.7+Math.random()*.65,8,7),new THREE.MeshStandardMaterial({color:i<5?0x383b3d:0x22272a,transparent:true,opacity:.55,roughness:1,depthWrite:false}));
+  puff.position.copy(plane.position);puff.position.y+=1+Math.random()*2;puff.position.x+=(Math.random()-.5)*2;puff.position.z+=(Math.random()-.5)*2;scene.add(puff);
+  crashSmoke.push({mesh:puff,velocity:new THREE.Vector3((Math.random()-.5)*1.4,1.2+Math.random()*2,(Math.random()-.5)*1.4),life:5+Math.random()*6,max:5+Math.random()*6});
+ }
+}
 function triggerCrash(reason='AIRFRAME IMPACT'){
  if(crashed||!plane)return;
  crashed=true;crashTimer=0;crashReason=reason;
+ spawnCrashEffects();
  crashVelocity=new THREE.Vector3();crashSpin=new THREE.Vector3();
  crashVelocity.set(Math.sin(yaw)*speed*.65,Math.max(8,Math.abs(verticalVelocity)*.8),-Math.cos(yaw)*speed*.65);
  crashSpin.set((Math.random()-.5)*2.8,(Math.random()-.5)*2.8,(Math.random()-.5)*3.8);
@@ -249,9 +281,13 @@ function triggerCrash(reason='AIRFRAME IMPACT'){
  const banner=$('crash-overlay');if(banner){banner.hidden=false;const title=banner.querySelector('[data-crash-title]');if(title)title.textContent=reason}
  toast('CRASH // AIRCRAFT DESTROYED');
 }
+function updateCrashEffects(dt){
+ for(const d of crashDebris){if(d.life<=0)continue;d.life-=dt;d.velocity.y-=14*dt;d.mesh.position.addScaledVector(d.velocity,dt);d.mesh.rotation.x+=d.spin.x*dt;d.mesh.rotation.y+=d.spin.y*dt;d.mesh.rotation.z+=d.spin.z*dt;d.velocity.multiplyScalar(Math.exp(-.25*dt));const floor=heightAt(d.mesh.position.x,d.mesh.position.z)+.2;if(d.mesh.position.y<floor){d.mesh.position.y=floor;d.velocity.y=Math.abs(d.velocity.y)*.2;d.velocity.x*=.5;d.velocity.z*=.5;d.spin.multiplyScalar(.6)}if(d.life<=0)d.mesh.visible=false}
+ for(const p of crashSmoke){if(p.life<=0)continue;p.life-=dt;p.mesh.position.addScaledVector(p.velocity,dt);p.mesh.scale.multiplyScalar(1+dt*.22);p.mesh.material.opacity=Math.max(0,.55*(p.life/p.max));if(p.life<=0)p.mesh.visible=false}
+}
 function updateCrash(dt){
  if(!crashed||!plane)return;
- crashTimer+=dt;const ground=heightAt(plane.position.x,plane.position.z);
+ crashTimer+=dt;updateCrashEffects(dt);const ground=heightAt(plane.position.x,plane.position.z);
  crashVelocity.y-=19*dt;
  plane.position.addScaledVector(crashVelocity,dt);
  plane.rotation.x+=crashSpin.x*dt;plane.rotation.y+=crashSpin.y*dt;plane.rotation.z+=crashSpin.z*dt;
