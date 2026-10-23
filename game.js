@@ -59,6 +59,7 @@ function makeJet(index){
  }
  // Finer airframe details: layered wing surfaces, control hinges, cockpit rails and engine hardware.
  const panel=mat(0x7f8c91,.5,.55),rubber=mat(0x101519,.9,.05),tireHub=mat(0x9ca8ad,.38,.7);
+ const canopyFrame=mat(0x35464f,.36,.7);
  // Thin swept leading-edge strips and trailing flaps make the wings read as built metal.
  const stripeMat=mat(index===2?0xbab39c:0x35464f,.48,.58);
  for(const side of [-1,1]){
@@ -92,7 +93,7 @@ function makeJet(index){
  }
  // Long framed canopy and a visible windscreen highlight.
  const canopy=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),glass);canopy.scale.set(.58,.48,1.72);canopy.position.set(0,.73,-3.0);g.add(canopy);
- const canopyFrame=mat(0x35464f,.36,.7);
+
  for(const z of [-4.05,-3.05,-2.0]){const frame=box(g,0,1.08,z,.055,.055,.07,canopyFrame);frame.rotation.z=.035}
  const windscreen=new THREE.Mesh(new THREE.SphereGeometry(.58,20,12),new THREE.MeshPhysicalMaterial({color:0x6aa3b5,metalness:.35,roughness:.18,transparent:true,opacity:.42}));windscreen.scale.set(.7,.24,.43);windscreen.position.set(0,.88,-4.05);g.add(windscreen);
  box(g,0,.34,-.75,.9,.12,2.1,dark);
