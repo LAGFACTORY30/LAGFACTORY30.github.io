@@ -324,27 +324,27 @@ function update(dt){if(crashed){worldTime+=dt;updateCrash(dt);const overlay=$('c
  const turnRate=Math.sin(-roll)*clamp(speed/spec.speed,0,1.25)*.82*spec.turn;
  yaw+=turnRate*dt;
  const pitchInput=Number(up)-Number(down);
- pitchRate+=(pitchInput*.58-pitchRate*1.25)*dt;
- pitch=clamp(pitch+pitchRate*dt,-.48,.48);
+ pitchRate+=(pitchInput*.82-pitchRate*1.05)*dt;
+ pitch=clamp(pitch+pitchRate*dt,-.62,.62);
 
  const forward=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw)).normalize();
  plane.position.addScaledVector(forward,speed*Math.max(.25,Math.cos(pitch))*dt);
  // Simplified aerodynamics: lift builds with airspeed, pitch adds lift, bank reduces it, gravity pulls down.
  const ground=heightAt(plane.position.x,plane.position.z);
  const gravity=9.81;
- const liftRatio=clamp(speed/(spec.speed*.64),0,1.45);
+ const liftRatio=clamp(speed/(spec.speed*.48),0,1.8);
  const flightPath=Math.atan2(verticalVelocity,Math.max(18,speed));
  const angleOfAttack=pitch-flightPath;
- const liftCoefficient=clamp(1+angleOfAttack*3.2,0,1.65);
+ const liftCoefficient=clamp(1.08+angleOfAttack*3.8,0,1.9);
  const lift=gravity*liftRatio*liftRatio*liftCoefficient*Math.max(.12,Math.cos(roll));
- const thrustVertical=spec.accel*.11*Math.sin(pitch)*(boost?1.2:1);
+ const thrustVertical=spec.accel*.18*Math.sin(pitch)*(boost?1.3:1);
  verticalVelocity+=(lift+thrustVertical-gravity)*dt;
  verticalVelocity=clamp(verticalVelocity,-65,65);
  plane.position.y+=verticalVelocity*dt;
  stallWarning=speed<spec.speed*.31&&altitude>ground+7;gForce=clamp(lift/gravity,.1,5.5);
  if(plane.position.y<ground+5){
   const impactSpeed=Math.abs(verticalVelocity);
-  if(impactSpeed>24||speed>jets[selected].speed*1.18&&Math.abs(pitch)>.55){triggerCrash('TERRAIN IMPACT');return}
+  if(impactSpeed>24||speed>jets[selected].speed*1.18&&Math.abs(pitch)>.6){triggerCrash('TERRAIN IMPACT');return}
   plane.position.y=ground+5;verticalVelocity=Math.max(1,verticalVelocity*.15);pitch=Math.max(pitch,.035);if(!stallWarning)toast('TERRAIN WARNING // PULL UP')
  }
  plane.position.y=clamp(plane.position.y,ground+5,1800);altitude=plane.position.y;heading=((yaw*180/Math.PI)%360+360)%360;groundSpeed=speed*Math.cos(pitch);
